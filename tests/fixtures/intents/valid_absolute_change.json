@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "status": "valid",
+  "operations": [
+    { "operation": "absolute_change", "target": "opex", "value": 5000000, "currency": "ZAR" }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "status": "valid",
+  "operations": [
+    { "operation": "absolute_change", "target": "revenue", "value": 2000000, "currency": "USD" }
+  ]
+}

@@ -18,6 +18,8 @@ Start here.
 ## Building with FinIR
 - [kernels.md](kernels.md) — the kernel library
 - [agent-integration.md](agent-integration.md) — structured intent for AI systems
+- [intent-contract.md](intent-contract.md) — **the canonical FinIR Intent Contract (v1.0)** — the schema the NL layer emits and the runtime consumes
+- [huggingface-intent-handoff.md](huggingface-intent-handoff.md) — implementation summary for the Hugging Face intent workstream
 - [extending.md](extending.md) — custom kernels, backends, templates
 - [performance.md](performance.md) — benchmarks and honest caveats
 
