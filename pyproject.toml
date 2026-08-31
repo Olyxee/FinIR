@@ -55,10 +55,10 @@ dev = [
 finir = "finir.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/Lethabo-Scofield/finir"
-Repository = "https://github.com/Lethabo-Scofield/finir"
-Documentation = "https://github.com/Lethabo-Scofield/finir/tree/main/docs"
-Issues = "https://github.com/Lethabo-Scofield/finir/issues"
+Homepage = "https://github.com/Olyxee/finir"
+Repository = "https://github.com/Olyxee/finir"
+Documentation = "https://github.com/Olyxee/finir/tree/main/docs"
+Issues = "https://github.com/Olyxee/finir/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/finir"]

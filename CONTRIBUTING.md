@@ -20,7 +20,7 @@ that keep it small, correct, and honest are very welcome.
 ## Development setup
 
 ```bash
-git clone https://github.com/Lethabo-Scofield/finir
+git clone https://github.com/Olyxee/finir
 cd finir
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
