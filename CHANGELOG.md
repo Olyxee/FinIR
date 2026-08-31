@@ -52,4 +52,4 @@ execution runtime for AI systems.
   scenarios, kernels, financial semantics, backends, agent integration, performance,
   extending.
 
-[0.1.0]: https://github.com/Lethabo-Scofield/finir/releases/tag/v0.1.0
+[0.1.0]: https://github.com/Olyxee/finir/releases/tag/v0.1.0

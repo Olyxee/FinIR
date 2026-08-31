@@ -5,7 +5,7 @@
 **Please do not report security vulnerabilities through public GitHub issues.**
 
 Open a private
-[GitHub Security Advisory](https://github.com/Lethabo-Scofield/finir/security/advisories/new)
+[GitHub Security Advisory](https://github.com/Olyxee/finir/security/advisories/new)
 for this repository. We aim to acknowledge within 5 business days.
 
 Please include a description, a minimal reproduction (synthetic data only), and the

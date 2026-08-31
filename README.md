@@ -20,7 +20,7 @@ CPU / SIMD / GPU
 Financial Result
 ```
 
-[![CI](https://github.com/Lethabo-Scofield/finir/actions/workflows/ci.yml/badge.svg)](https://github.com/Lethabo-Scofield/finir/actions/workflows/ci.yml)
+[![CI](https://github.com/Olyxee/finir/actions/workflows/ci.yml/badge.svg)](https://github.com/Olyxee/finir/actions/workflows/ci.yml)
 &nbsp;License: Apache-2.0 &nbsp;·&nbsp; Python 3.11+ &nbsp;·&nbsp; CPU-first, optional GPU
 
 ## Quick start

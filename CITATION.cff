@@ -12,8 +12,8 @@ authors:
 version: 0.1.0
 date-released: 2026-08-31
 license: Apache-2.0
-repository-code: "https://github.com/Lethabo-Scofield/finir"
-url: "https://github.com/Lethabo-Scofield/finir"
+repository-code: "https://github.com/Olyxee/finir"
+url: "https://github.com/Olyxee/finir"
 keywords:
   - financial computation
   - intermediate representation
