@@ -1,4 +1,0 @@
-From: sales@abcsupplies.example
-Subject: Update: pricing on hold
-
-Following your feedback, Supplier ABC will hold current prices and will not increase pricing on SKU-A at this time.

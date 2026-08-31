@@ -1,23 +1,23 @@
 cff-version: 1.2.0
-message: "If you use EIF in your research, please cite it as below."
-title: "Economic Intelligence Framework (EIF)"
+message: "If you use FinIR in your research, please cite it as below."
+title: "FinIR: a financial intermediate representation and incremental execution runtime"
 abstract: >-
-  Open infrastructure for converting multimodal business evidence into
-  standardized, machine-readable economic events and estimated financial
-  consequences, with quantified uncertainty, timing, and provenance.
+  FinIR is a compiler target and runtime for financial computation generated or
+  consumed by AI systems: a typed financial intermediate representation with
+  dependency-aware incremental execution, a finance-native cache, a scenario engine,
+  and workload-aware CPU/GPU dispatch.
 type: software
 authors:
-  - name: "EIF Contributors"
+  - name: "FinIR Contributors"
 version: 0.1.0
-date-released: 2026-08-30
+date-released: 2026-08-31
 license: Apache-2.0
-repository-code: "https://github.com/Lethabo-Scofield/economic-intelligence-framework"
-url: "https://github.com/Lethabo-Scofield/economic-intelligence-framework"
+repository-code: "https://github.com/Lethabo-Scofield/finir"
+url: "https://github.com/Lethabo-Scofield/finir"
 keywords:
-  - economic intelligence
-  - financial events
-  - multimodal
-  - provenance
-  - risk
-  - forecasting
-  - economic signal lead time
+  - financial computation
+  - intermediate representation
+  - compiler
+  - incremental computation
+  - scenario analysis
+  - ai infrastructure

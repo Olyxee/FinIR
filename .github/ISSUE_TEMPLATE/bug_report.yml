@@ -1,51 +1,48 @@
 name: Bug report
-description: Report a defect in EIF
+description: Report a defect in FinIR
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a bug. Please do **not** include real customer data,
-        credentials, or secrets in this issue.
+        Thanks for reporting a bug. Please do **not** include secrets or real
+        proprietary financial data — use a minimal synthetic model.
   - type: textarea
     id: what-happened
     attributes:
       label: What happened?
       description: A clear description of the bug and what you expected instead.
-      placeholder: EIF produced ... but I expected ...
+      placeholder: FinIR produced ... but I expected ...
     validations:
       required: true
   - type: textarea
     id: repro
     attributes:
       label: Minimal reproduction
-      description: Smallest code / CLI command and (synthetic) evidence that reproduces it.
-      render: shell
+      description: Smallest Python or .finir model + command that reproduces it.
+      render: python
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: EIF version
+      label: FinIR version
       placeholder: 0.1.0
     validations:
       required: true
   - type: input
     id: python
     attributes:
-      label: Python version
-      placeholder: "3.11"
+      label: Python / OS / NumPy
+      placeholder: "3.11 / Ubuntu 24.04 / numpy 2.1"
     validations:
       required: true
   - type: dropdown
-    id: providers
+    id: backend
     attributes:
-      label: Provider in use
+      label: Backend
       options:
-        - mock (default / offline)
-        - openai / openai-compatible
-        - anthropic
-        - gemini
-        - other
+        - cpu (default)
+        - gpu (cupy)
     validations:
       required: true

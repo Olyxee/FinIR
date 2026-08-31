@@ -1,9 +1,0 @@
-From: accounts@abcsupplies.example
-Subject: Notice of price increase
-
-Dear valued customer,
-
-Please be advised that Supplier ABC will implement a 10% price increase across all components in SKU-A, effective 1 November 2026. This adjustment reflects rising input and logistics costs.
-
-Regards,
-ABC Supplies Accounts Team

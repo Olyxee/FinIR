@@ -1,0 +1,73 @@
+{
+  "hardware": {
+    "timestamp_utc": "2026-08-31T21:38:39.590815+00:00",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 154 Stepping 4, GenuineIntel",
+    "python": "3.13.7",
+    "numpy": "2.5.2",
+    "finir": "0.1.0"
+  },
+  "incremental_vs_recompute": [
+    {
+      "nodes": 41,
+      "turns": 40,
+      "baseline_s": 0.0019299000050523318,
+      "finir_s": 0.001142900000559166,
+      "speedup": 1.6885991811253167,
+      "cache_hit_ratio": 0.8709677419354839
+    },
+    {
+      "nodes": 241,
+      "turns": 60,
+      "baseline_s": 0.016058999994129408,
+      "finir_s": 0.008411899994825944,
+      "speedup": 1.9090811830867105,
+      "cache_hit_ratio": 0.9701492537313433
+    },
+    {
+      "nodes": 841,
+      "turns": 80,
+      "baseline_s": 0.07852770000317832,
+      "finir_s": 0.036382700003741775,
+      "speedup": 2.1583802190354797,
+      "cache_hit_ratio": 0.9902912621359223
+    },
+    {
+      "nodes": 2101,
+      "turns": 100,
+      "baseline_s": 0.2621055999989039,
+      "finir_s": 0.11903860000165878,
+      "speedup": 2.201853852407971,
+      "cache_hit_ratio": 0.9961132704053304
+    }
+  ],
+  "scenario_backend": {
+    "gpu_available": false,
+    "rows": [
+      {
+        "size": 1000,
+        "cpu_s": 7.829999958630651e-05,
+        "gpu_s": null,
+        "gpu_speedup": null
+      },
+      {
+        "size": 10000,
+        "cpu_s": 0.00010289999772794545,
+        "gpu_s": null,
+        "gpu_speedup": null
+      },
+      {
+        "size": 100000,
+        "cpu_s": 0.001961599999049213,
+        "gpu_s": null,
+        "gpu_speedup": null
+      },
+      {
+        "size": 1000000,
+        "cpu_s": 0.04853169999842066,
+        "gpu_s": null,
+        "gpu_speedup": null
+      }
+    ]
+  }
+}

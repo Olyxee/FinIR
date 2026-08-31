@@ -3,23 +3,23 @@ requires = ["hatchling>=1.21"]
 build-backend = "hatchling.build"
 
 [project]
-name = "economic-intelligence-framework"
+name = "finir"
 version = "0.1.0"
-description = "Open infrastructure for converting multimodal business evidence into standardized economic events with quantified financial impact, uncertainty, timing, and provenance."
+description = "A financial intermediate representation and incremental execution runtime for AI systems."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
-authors = [{ name = "EIF Contributors" }]
+authors = [{ name = "FinIR Contributors" }]
 keywords = [
-    "economic-intelligence",
-    "financial-events",
-    "multimodal",
-    "provenance",
-    "risk",
-    "forecasting",
+    "financial-computation",
+    "intermediate-representation",
+    "compiler",
+    "incremental-computation",
+    "scenario-analysis",
+    "ai-infrastructure",
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Financial and Insurance Industry",
     "License :: OSI Approved :: Apache Software License",
@@ -27,79 +27,44 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Office/Business :: Financial",
-    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Software Development :: Compilers",
     "Typing :: Typed",
 ]
 
-# Core dependencies are intentionally minimal. Everything that reaches out to a
-# third-party service or parses a heavy file format is an optional extra so that
-# `pip install economic-intelligence-framework` stays lightweight and installable
-# offline.
+# Core is intentionally tiny: NumPy is the only hard dependency (the reference and
+# vectorized CPU backends). Everything heavier is an optional extra.
 dependencies = [
-    "pydantic>=2.6,<3",
-    "pydantic-settings>=2.2,<3",
-    "typing-extensions>=4.10",
-    "python-dateutil>=2.9",
-    "PyYAML>=6.0",
+    "numpy>=1.26",
 ]
 
 [project.optional-dependencies]
-sql = ["SQLAlchemy>=2.0,<3", "alembic>=1.13"]
-postgres = ["SQLAlchemy>=2.0,<3", "psycopg[binary]>=3.1"]
-api = ["fastapi>=0.110", "uvicorn[standard]>=0.29"]
 cli = ["typer>=0.12", "rich>=13.7"]
-excel = ["openpyxl>=3.1"]
-pdf = ["pypdf>=4.2"]
-openai = ["openai>=1.30"]
-anthropic = ["anthropic>=0.34"]
-gemini = ["google-generativeai>=0.7"]
-otel = ["opentelemetry-api>=1.25", "opentelemetry-sdk>=1.25"]
+gpu = ["cupy-cuda12x>=13.0"]     # optional GPU backend; never required
+viz = ["graphviz>=0.20"]          # optional SVG rendering (DOT export needs nothing)
 dev = [
     "pytest>=8.1",
     "pytest-cov>=5.0",
     "ruff>=0.5",
     "mypy>=1.10",
     "pre-commit>=3.7",
-    "types-PyYAML",
-    "types-python-dateutil",
-    # bring the optional runtime extras into the dev env for the full test suite
-    "SQLAlchemy>=2.0,<3",
-    "fastapi>=0.110",
-    "httpx>=0.27",
     "typer>=0.12",
     "rich>=13.7",
-    "openpyxl>=3.1",
-    "pypdf>=4.2",
-    "uvicorn>=0.29",
-]
-all = [
-    "economic-intelligence-framework[sql,api,cli,excel,pdf,otel]",
 ]
 
 [project.scripts]
-eif = "eif.cli.main:app"
+finir = "finir.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/Lethabo-Scofield/economic-intelligence-framework"
-Repository = "https://github.com/Lethabo-Scofield/economic-intelligence-framework"
-Documentation = "https://github.com/Lethabo-Scofield/economic-intelligence-framework/tree/main/docs"
-Issues = "https://github.com/Lethabo-Scofield/economic-intelligence-framework/issues"
+Homepage = "https://github.com/Lethabo-Scofield/finir"
+Repository = "https://github.com/Lethabo-Scofield/finir"
+Documentation = "https://github.com/Lethabo-Scofield/finir/tree/main/docs"
+Issues = "https://github.com/Lethabo-Scofield/finir/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/eif"]
+packages = ["src/finir"]
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "src/eif",
-    "benchmarks",
-    "research",
-    "docs",
-    "examples",
-    "README.md",
-    "LICENSE",
-    "CHANGELOG.md",
-    "CITATION.cff",
-]
+include = ["src/finir", "benchmarks", "research", "docs", "examples", "README.md", "LICENSE", "CHANGELOG.md", "CITATION.cff"]
 
 [tool.ruff]
 line-length = 100
@@ -107,37 +72,37 @@ target-version = "py311"
 src = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "C4", "SIM", "TID", "PL", "RUF"]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "PL", "RUF"]
 ignore = [
-    "E501",    # line length is owned by the formatter (ruff format), not the linter
-    "PLR0913", # allow many arguments; domain constructors are wide by design
-    "PLR2004", # magic values are fine in tests / benchmark data
-    "PLR0912", # branch count; reasoning code is inherently branchy
-    "PLR0915", # statement count
-    "PLR0917", # too-many positional args; wide domain constructors again
-    "PLR0911", # many return branches in strategy dispatch
-    "PLR1714", # merging comparisons hurts readability of keyword lists
-    "PLC0415", # lazy/deferred imports are intentional (optional deps, fast startup)
-    "PLW0603", # module-level singleton in the API app is intentional
-    "TID252",  # relative imports within the package are idiomatic here
-    "B008",    # FastAPI Depends()/Query() defaults are the framework idiom
-    "B027",    # empty methods in ABCs are deliberate no-op defaults
-    "RUF015",  # next(iter(...)) vs [0] is a style nit
-    "RUF022",  # __all__ is grouped by category with comments on purpose
-    "UP042",   # custom StrEnum base is intentional (str+Enum) for pydantic interop
-    "C901",    # complexity; guarded by review
+    "E501",    # line length is owned by the formatter
+    "PLR0913", # wide constructors are fine
+    "PLR2004", # magic values fine in tests/benchmarks/formulas
+    "PLR0912", # branchy compiler/runtime code
+    "PLR0915",
+    "PLR0911",
+    "PLC0415", # lazy/optional imports are intentional
+    "PLW0603", # module-level default registries are intentional singletons
+    "PLW0108", # small lambdas for kernel fns read fine
+    "PLW2901", # loop-var reuse in parsers is local and clear
+    "B008",    # typer Option()/Argument() defaults are the framework idiom
+    "C416",    # occasional explicit comprehensions kept for clarity
+    "C401",
+    "C901",
+    "RUF001",  # ambiguous unicode in finance docstrings (×, →) is intentional
+    "RUF002",
+    "RUF003",
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["PLR2004", "S101"]
+"tests/*" = ["PLR2004"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["eif"]
+known-first-party = ["finir"]
 
 [tool.mypy]
-python_version = "3.11"
-plugins = ["pydantic.mypy"]
-packages = ["eif"]
+# 3.12 so mypy can parse NumPy 2.x's PEP 695 stubs; runtime still targets 3.11.
+python_version = "3.12"
+packages = ["finir"]
 mypy_path = "src"
 strict = false
 warn_unused_ignores = true
@@ -153,9 +118,8 @@ pythonpath = ["src"]
 filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.coverage.run]
-source = ["eif"]
+source = ["finir"]
 branch = true
 
 [tool.coverage.report]
 show_missing = true
-skip_covered = false

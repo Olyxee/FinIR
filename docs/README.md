@@ -1,28 +1,27 @@
-# EIF Documentation
+# FinIR documentation
 
-Start here, then dive into the topic you need.
+Start here.
 
-## Understand the ideas
-- [concepts.md](concepts.md) — the abstraction chain and core objects
-- [architecture.md](architecture.md) — how the pieces fit together
-- [economic-events.md](economic-events.md) — the central object + registry
-- [observations.md](observations.md) — evidence → structured statements
-- [provenance.md](provenance.md) — the mandatory audit trail
-- [impact-estimation.md](impact-estimation.md) — deterministic financial math
-- [confidence.md](confidence.md) — confidence & uncertainty
+## Concepts
+- [architecture.md](architecture.md) — the layered design
+- [ir.md](ir.md) — the intermediate representation (`.finir`, JSON, parser)
+- [type-system.md](type-system.md) — finance-aware types
+- [financial-semantics.md](financial-semantics.md) — metrics and their dependencies
 
-## Build with it
-- [connectors.md](connectors.md) — ingesting evidence
-- [providers.md](providers.md) — model providers
-- [configuration.md](configuration.md) — config layers & options
-- [extending.md](extending.md) — event types, connectors, providers, stages
+## Execution
+- [compiler.md](compiler.md) — the pass pipeline
+- [runtime.md](runtime.md) — incremental execution
+- [caching.md](caching.md) — the computation cache
+- [scenarios.md](scenarios.md) — what-if and scenario batches
+- [backends.md](backends.md) — CPU / GPU and dispatch
 
-## Run it
-- [deployment.md](deployment.md) — source, Docker, SQLite → PostgreSQL
-- [security.md](security.md) — threat model & controls
-- [privacy.md](privacy.md) — local mode & private mode
+## Building with FinIR
+- [kernels.md](kernels.md) — the kernel library
+- [agent-integration.md](agent-integration.md) — structured intent for AI systems
+- [extending.md](extending.md) — custom kernels, backends, templates
+- [performance.md](performance.md) — benchmarks and honest caveats
 
-## Measure it
-- [evaluation.md](evaluation.md) — ESLT, detection, impact, calibration
-- [benchmark.md](benchmark.md) — the open benchmark format
-- Reference experiment: [../research/experiment_001.md](../research/experiment_001.md)
+## Research
+- [../research/experiment_001_incremental_financial_reasoning.md](../research/experiment_001_incremental_financial_reasoning.md)
+- [../research/experiment_002_backend_dispatch.md](../research/experiment_002_backend_dispatch.md)
+- [../research/prior_art.md](../research/prior_art.md)

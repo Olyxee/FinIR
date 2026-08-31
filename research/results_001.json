@@ -1,401 +1,82 @@
 {
-  "hypothesis": "Multimodal business evidence identifies financially material events earlier and at least as accurately as structured financial data alone.",
-  "baseline": {
-    "condition": "baseline",
-    "cases": 8,
-    "detection": {
-      "tp": 1,
-      "fp": 0,
-      "fn": 6,
-      "precision": 1.0,
-      "recall": 0.1429,
-      "f1": 0.25,
-      "false_positive_rate": 0.0
-    },
-    "impact_vs_label": {
-      "n": 0,
-      "mae": null,
-      "mape": null,
-      "interval_coverage": null
-    },
-    "impact_vs_realized": {
-      "n": 0,
-      "mae": null,
-      "mape": null,
-      "interval_coverage": null
-    },
-    "eslt": {
-      "n": 1,
-      "mean_days": 43.0,
-      "median_days": 43.0,
-      "stdev_days": 0.0,
-      "min_days": 43.0,
-      "max_days": 43.0,
-      "ci95_low": 43.0,
-      "ci95_high": 43.0,
-      "positive_fraction": 1.0
-    },
-    "confidence_calibration_ece": 0.25,
-    "per_case": [
-      {
-        "case_id": "benign_non_material",
-        "title": "Benign, non-material price tweak",
-        "detection": {
-          "tp": 0,
-          "fp": 0,
-          "fn": 0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": null
-      },
-      {
-        "case_id": "conflicting_evidence",
-        "title": "Conflicting supplier pricing signals",
-        "detection": {
-          "tp": 0,
-          "fp": 0,
-          "fn": 1,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": null
-      },
-      {
-        "case_id": "contract_obligation",
-        "title": "Upcoming contractual obligation",
-        "detection": {
-          "tp": 0,
-          "fp": 0,
-          "fn": 1,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": null
-      },
-      {
-        "case_id": "customer_revenue_contraction",
-        "title": "Customer signals a 20% order reduction",
-        "detection": {
-          "tp": 0,
-          "fp": 0,
-          "fn": 1,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": null
-      },
-      {
-        "case_id": "inventory_accumulation",
-        "title": "Inventory accumulating faster than sales",
-        "detection": {
-          "tp": 1,
-          "fp": 0,
-          "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": 43.0
-      },
-      {
-        "case_id": "operational_capacity_issue",
-        "title": "Operational capacity constraint",
-        "detection": {
-          "tp": 0,
-          "fp": 0,
-          "fn": 1,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": null
-      },
-      {
-        "case_id": "project_delay_cost_overrun",
-        "title": "Project delay implies a cost overrun",
-        "detection": {
-          "tp": 0,
-          "fp": 0,
-          "fn": 1,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": null
-      },
-      {
-        "case_id": "supplier_price_increase",
-        "title": "Supplier announces a future 10% price increase",
-        "detection": {
-          "tp": 0,
-          "fp": 0,
-          "fn": 1,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": null
-      }
-    ]
+  "hardware": {
+    "timestamp_utc": "2026-08-31T21:39:19.339400+00:00",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.7",
+    "numpy": "2.5.2",
+    "finir": "0.1.0"
   },
-  "eif": {
-    "condition": "eif",
-    "cases": 8,
-    "detection": {
-      "tp": 7,
-      "fp": 0,
-      "fn": 0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "false_positive_rate": 0.0
+  "research_question": "Does dependency-aware incremental execution reduce the compute cost of iterative financial reasoning vs. full recomputation each turn?",
+  "agent_workload": {
+    "turn_sequence": [
+      [
+        "revenue",
+        "+5%"
+      ],
+      [
+        "revenue",
+        "+8%"
+      ],
+      [
+        "cogs",
+        "+3%"
+      ],
+      [
+        "receivable_days",
+        "30d->60d"
+      ],
+      [
+        "opex",
+        "-4%"
+      ]
+    ],
+    "baseline_full_recompute": {
+      "seconds": 0.03545440000016242,
+      "turns": 1000,
+      "nodes_recomputed_total": 6000,
+      "cache_hit_ratio": 0.0
     },
-    "impact_vs_label": {
-      "n": 5,
-      "mae": 0.0,
-      "mape": 0.0,
-      "interval_coverage": 1.0
+    "finir_incremental": {
+      "seconds": 0.022281999998085666,
+      "turns": 1000,
+      "nodes_recomputed_total": 3600,
+      "cache_hit_ratio": 0.4
     },
-    "impact_vs_realized": {
-      "n": 5,
-      "mae": 83000.0,
-      "mape": 0.04,
-      "interval_coverage": null
+    "speedup": 1.5911677588730118,
+    "recompute_reduction": 0.4
+  },
+  "scaling": [
+    {
+      "nodes": 41,
+      "turns": 40,
+      "baseline_s": 0.001897800000733696,
+      "finir_s": 0.0010062000001198612,
+      "speedup": 1.8861061424245924,
+      "cache_hit_ratio": 0.8709677419354839
     },
-    "eslt": {
-      "n": 6,
-      "mean_days": 70.17,
-      "median_days": 57.0,
-      "stdev_days": 39.82,
-      "min_days": 27.0,
-      "max_days": 127.0,
-      "ci95_low": 38.31,
-      "ci95_high": 102.03,
-      "positive_fraction": 1.0
+    {
+      "nodes": 241,
+      "turns": 60,
+      "baseline_s": 0.01529350000055274,
+      "finir_s": 0.007707099997787736,
+      "speedup": 1.9843391165214699,
+      "cache_hit_ratio": 0.9701492537313433
     },
-    "confidence_calibration_ece": 0.1375,
-    "per_case": [
-      {
-        "case_id": "benign_non_material",
-        "title": "Benign, non-material price tweak",
-        "detection": {
-          "tp": 0,
-          "fp": 0,
-          "fn": 0,
-          "precision": 0.0,
-          "recall": 0.0,
-          "f1": 0.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": null
-      },
-      {
-        "case_id": "conflicting_evidence",
-        "title": "Conflicting supplier pricing signals",
-        "detection": {
-          "tp": 1,
-          "fp": 0,
-          "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": null
-      },
-      {
-        "case_id": "contract_obligation",
-        "title": "Upcoming contractual obligation",
-        "detection": {
-          "tp": 1,
-          "fp": 0,
-          "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 1,
-          "mae": 0.0,
-          "mape": 0.0,
-          "interval_coverage": 1.0
-        },
-        "eslt_days": 110.0
-      },
-      {
-        "case_id": "customer_revenue_contraction",
-        "title": "Customer signals a 20% order reduction",
-        "detection": {
-          "tp": 1,
-          "fp": 0,
-          "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 1,
-          "mae": 0.0,
-          "mape": 0.0,
-          "interval_coverage": 1.0
-        },
-        "eslt_days": 127.0
-      },
-      {
-        "case_id": "inventory_accumulation",
-        "title": "Inventory accumulating faster than sales",
-        "detection": {
-          "tp": 1,
-          "fp": 0,
-          "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 0,
-          "mae": null,
-          "mape": null,
-          "interval_coverage": null
-        },
-        "eslt_days": 43.0
-      },
-      {
-        "case_id": "operational_capacity_issue",
-        "title": "Operational capacity constraint",
-        "detection": {
-          "tp": 1,
-          "fp": 0,
-          "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 1,
-          "mae": 0.0,
-          "mape": 0.0,
-          "interval_coverage": 1.0
-        },
-        "eslt_days": 27.0
-      },
-      {
-        "case_id": "project_delay_cost_overrun",
-        "title": "Project delay implies a cost overrun",
-        "detection": {
-          "tp": 1,
-          "fp": 0,
-          "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 1,
-          "mae": 0.0,
-          "mape": 0.0,
-          "interval_coverage": 1.0
-        },
-        "eslt_days": 66.0
-      },
-      {
-        "case_id": "supplier_price_increase",
-        "title": "Supplier announces a future 10% price increase",
-        "detection": {
-          "tp": 1,
-          "fp": 0,
-          "fn": 0,
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "false_positive_rate": 0.0
-        },
-        "impact": {
-          "n": 1,
-          "mae": 0.0,
-          "mape": 0.0,
-          "interval_coverage": 1.0
-        },
-        "eslt_days": 48.0
-      }
-    ]
-  }
+    {
+      "nodes": 841,
+      "turns": 80,
+      "baseline_s": 0.07929539999895496,
+      "finir_s": 0.03590980000444688,
+      "speedup": 2.208182724190484,
+      "cache_hit_ratio": 0.9902912621359223
+    },
+    {
+      "nodes": 2101,
+      "turns": 100,
+      "baseline_s": 0.26290940000035334,
+      "finir_s": 0.11984409999422496,
+      "speedup": 2.193761728887967,
+      "cache_hit_ratio": 0.9961132704053304
+    }
+  ]
 }

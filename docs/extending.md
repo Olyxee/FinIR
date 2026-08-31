@@ -1,80 +1,64 @@
-# Extending EIF
+# Extending FinIR
 
-Most extensions plug into an existing extension point — no framework changes.
+FinIR is small on purpose; you extend it at clean seams.
 
-## Add an event type
-
-```python
-from eif.ontology import EVENT_REGISTRY, EventTypeDefinition
-from eif.domain.enums import Direction
-
-EVENT_REGISTRY.register(EventTypeDefinition(
-    key="fx_exposure_change",
-    label="FX Exposure Change",
-    category="risk",
-    default_metrics=["operating_income"],
-    typical_direction=Direction.UNKNOWN,
-    impact_strategy="generic",
-))
-```
-
-Add entity types via `ENTITY_REGISTRY` and metrics via `METRIC_REGISTRY` the same
-way.
-
-## Add a connector
-
-Subclass `EIFConnector`, implement `can_handle` and `load`, and register it. See
-[connectors.md](connectors.md).
-
-## Add a model provider
-
-Implement the relevant interface (`LLMProvider`, `EmbeddingProvider`,
-`VisionProvider`, `TranscriptionProvider`) and set `sends_data_offhost`. See
-[providers.md](providers.md).
-
-## Replace a pipeline stage
-
-Every stage is injectable:
+## Custom kernels
 
 ```python
-from eif.pipeline import EIFPipeline
-from eif.pipeline.stages import ObservationExtractor, ImpactEstimator
+from finir import kernel
+from finir.types import Money
 
-class MyExtractor(ObservationExtractor):
-    def extract(self, evidence): ...
 
-pipeline = EIFPipeline(
-    repo,
-    observation_extractor=MyExtractor(),
-    impact_estimator=MyEstimator(),
-)
+@kernel("logistics.landed_cost", result=Money("ZAR"), arity=2)
+def landed_cost(unit_cost, freight):
+    return unit_cost + freight
 ```
 
-Stage interfaces: `ObservationExtractor`, `EventCandidateGenerator`,
-`ImpactEstimator`, `MaterialityEngine`, plus `EntityResolver` / `EventResolver`
-for the graph.
+`result` is a fixed `FinType` or a rule `list[FinType] -> FinType`. The kernel is now
+available in any expression and to the type-checker. Numeric implementations should
+work on scalars **and** NumPy arrays (write them with NumPy).
 
-## Add an impact strategy
+## Custom templates (stdlib)
 
-Point an event type at a strategy name and implement it on a custom
-`ImpactEstimator` (or add a `_strategy_<name>` method). It must return no impact
-when its required inputs are missing — never a fabricated number. See
-[impact-estimation.md](impact-estimation.md).
+A template is just a function that adds nodes to a model:
 
-## Add a storage backend
+```python
+def my_operating_model(model):
+    model.define("contribution", "revenue - variable_cost")
+    model.define("contribution_margin", "contribution / revenue")
+    return model
+```
 
-Implement the `Repository` interface (see
-[../src/eif/storage/base.py](../src/eif/storage/base.py)). The event graph, API,
-and CLI all program against it, so a new backend (e.g. Neo4j) needs no changes
-elsewhere.
+## Custom backends
 
-## Add a benchmark case
+Implement `ExecutionBackend` — a `binary(op, a, b)` and (optionally) `prepare` /
+`finalize` for device marshalling. The default `eval_expr` walks the AST for you;
+override `call_kernel` if kernels need special handling on your device.
 
-Drop a case directory under `benchmarks/cases/` in the documented format, marked
-synthetic. See [benchmark.md](benchmark.md).
+```python
+from finir.backends.base import ExecutionBackend
 
-## Custom event-bus adapter
 
-Implement `EventBus` (`publish` / `subscribe` / `unsubscribe`) to bridge Kafka,
-Redis Streams, NATS, or a cloud queue. The in-process implementation is the
-reference.
+class MyBackend(ExecutionBackend):
+    name = "mybackend"
+
+    def binary(self, op, a, b):
+        return self._apply(op, a, b)
+
+
+model.set_backend(MyBackend())
+```
+
+## Language bindings
+
+The IR's JSON form (`module_to_json` / `module_from_json`) is the stable, neutral
+interchange format. Other languages (TypeScript, Rust, Java, ...) can consume a
+FinIR module by reading that JSON — no Python required. The Python package is the
+reference implementation; additional SDKs are future work, not shipped now.
+
+## Numeric policy
+
+`finir.numerics.set_policy(NumericPolicy(on_div_zero="raise"))` controls
+division-by-zero and non-finite handling; a Decimal path is available for
+money-sensitive scalar math (`to_decimal`). Vectorized workloads use float64 — a
+documented precision trade-off.

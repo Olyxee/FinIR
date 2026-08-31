@@ -12,17 +12,16 @@ concurrency:
 
 jobs:
   test:
-    name: test (py${{ matrix.python-version }})
-    runs-on: ubuntu-latest
+    name: test (${{ matrix.os }}, py${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -33,42 +32,33 @@ jobs:
           pip install -e ".[dev]"
 
       - name: Lint (ruff)
-        run: ruff check src tests
+        run: ruff check .
 
       - name: Format check (ruff)
-        run: ruff format --check src tests
+        run: ruff format --check .
 
       - name: Type check (mypy)
-        run: mypy
+        run: mypy src
 
       - name: Tests
-        run: pytest --cov=eif --cov-report=xml --cov-report=term
+        run: pytest --cov=finir --cov-report=xml --cov-report=term
 
-      - name: Benchmark smoke
+      - name: CLI + benchmark smoke
         run: |
-          eif benchmark generate benchmarks/cases
-          eif benchmark run --cases benchmarks/cases --json > /dev/null
+          finir --help
+          finir doctor
+          finir benchmark --quick
 
-      - name: Upload coverage
-        if: matrix.python-version == '3.11'
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: coverage.xml
-
-  docker:
-    name: docker build
+  build:
+    name: build package
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build image
-        run: docker build -t eif:ci .
-      - name: Smoke-test container health
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build sdist + wheel
         run: |
-          docker run -d --name eif -p 8000:8000 eif:ci
-          for i in $(seq 1 20); do
-            if curl -fs http://127.0.0.1:8000/health; then echo "healthy"; exit 0; fi
-            sleep 2
-          done
-          docker logs eif
-          exit 1
+          python -m pip install --upgrade pip build twine
+          python -m build
+          twine check dist/*
