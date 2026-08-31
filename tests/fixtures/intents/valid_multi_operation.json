@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "status": "valid",
+  "operations": [
+    { "operation": "relative_change", "target": "revenue", "value": -0.08 },
+    { "operation": "relative_change", "target": "cogs", "value": 0.03 },
+    { "operation": "set", "target": "payment_terms", "value": 60, "unit": "days" }
+  ]
+}

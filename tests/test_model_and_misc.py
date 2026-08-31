@@ -37,15 +37,24 @@ def test_apply_intent_variants():
     assert round(float(r2["gp"])) == round(600e6 - 300e6)
 
 
-def test_mock_intent_compiler():
+def test_mock_intent_compiler_emits_canonical_envelope():
     ic = MockIntentCompiler()
-    assert ic.compile("increase COGS by 4%") == {
-        "operation": "relative_change",
-        "target": "cogs",
-        "value": 0.04,
+    out = ic.compile("increase COGS by 4%")
+    assert out["schema_version"] == "1.0" and out["status"] == "valid"
+    assert out["operations"] == [{"operation": "relative_change", "target": "cogs", "value": 0.04}]
+
+    terms = ic.compile("extend payment terms from 30 to 60 days")
+    assert terms["status"] == "valid"
+    assert terms["operations"][0] == {
+        "operation": "set",
+        "target": "payment_terms",
+        "value": 60.0,
+        "unit": "days",
     }
-    out = ic.compile("extend payment terms from 30 to 60 days")
-    assert out == {"operation": "set", "target": "payment_terms", "value": 60.0}
+
+    # Vague / non-representable requests are non-executable, not invented numbers.
+    assert ic.compile("improve margins next year")["status"] == "ambiguous"
+    assert ic.compile("acquire our largest competitor")["status"] == "unsupported"
 
 
 def test_backend_planner_thresholds():

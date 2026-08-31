@@ -147,11 +147,23 @@ class FinancialModel:
         return out
 
     def run_scenarios(
-        self, *, targets: list[str] | None = None, backend: str | None = None, **arrays: Any
+        self,
+        arrays: dict[str, Any] | None = None,
+        *,
+        targets: list[str] | None = None,
+        backend: str | None = None,
+        **kw_arrays: Any,
     ) -> EvaluationResult:
-        """Run a large batch of scenarios by setting inputs to arrays (vectorized)."""
+        """Run a large batch of scenarios by setting inputs to arrays (vectorized).
+
+        Arrays may be passed as a dict or as keyword arguments::
+
+            model.run_scenarios(cogs=np.linspace(...))
+            model.run_scenarios({"cogs": np.linspace(...)})
+        """
         engine = self._ensure_engine()
-        overrides = {name: np.asarray(v, dtype="float64") for name, v in arrays.items()}
+        merged = {**(arrays or {}), **kw_arrays}
+        overrides = {name: np.asarray(v, dtype="float64") for name, v in merged.items()}
         size = max((v.size for v in overrides.values()), default=1)
         if backend is not None:
             engine.backend = self.planner.get(backend)
@@ -164,37 +176,25 @@ class FinancialModel:
         return engine.evaluate(targets, overrides=overrides, scenario_id=f"batch_{size}")
 
     # -- agent API -----------------------------------------------------------
-    def apply_intent(self, intent: dict[str, Any]) -> EvaluationResult:
-        """Execute a structured financial intent (item 9).
+    def apply_intent(self, intent: Any) -> EvaluationResult | dict[str, EvaluationResult]:
+        """Validate and execute a canonical FinIR intent (schema v1.0).
 
-        Shapes accepted::
+        ``intent`` may be a :class:`finir.intent.FinIRIntent`, the canonical envelope
+        dict, or a legacy single-operation dict (normalized immediately). Only a
+        ``valid`` intent executes; a non-valid or type-incompatible intent raises
+        :class:`finir.intent.IntentValidationError`.
 
-            {"operation": "relative_change", "target": "cogs", "value": 0.04}
-            {"operation": "set", "target": "revenue", "value": 5.2e8}
-            {"operation": "change", "metric": "cogs", "relative_change": 0.04}
+        Returns an :class:`EvaluationResult` for operation intents (including a
+        ``range`` batch) and a ``{name: EvaluationResult}`` mapping for scenario
+        intents. See docs/intent-contract.md.
         """
-        op = intent.get("operation", "relative_change")
-        target = intent.get("target") or intent.get("metric")
-        if target is None:
-            from .exceptions import FinIRError
+        from .intent.execute import execute_intent
 
-            raise FinIRError("intent must name a target/metric")
-        if op in ("relative_change", "change") and (
-            "value" in intent or "relative_change" in intent
-        ):
-            rel = intent.get("relative_change", intent.get("value"))
-            if rel is None:
-                from .exceptions import FinIRError
-
-                raise FinIRError("relative_change intent requires a value")
-            return self.what_if({target: {"relative": float(rel)}})
-        if op == "set":
-            return self.what_if({target: {"absolute": float(intent["value"])}})
-        if op == "delta":
-            return self.what_if({target: {"delta": float(intent["value"])}})
-        from .exceptions import FinIRError
-
-        raise FinIRError(f"unknown intent operation {op!r}")
+        execution = execute_intent(self, intent)
+        if execution.scenario_results is not None:
+            return execution.scenario_results
+        assert execution.result is not None
+        return execution.result
 
     # -- state snapshots -----------------------------------------------------
     def state(self) -> ModelState:

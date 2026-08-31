@@ -15,10 +15,18 @@ FinIR mutation + incremental execution
 deterministic financial result
 ```
 
+## The canonical contract
+
+The exact, versioned envelope the NL layer emits and the runtime consumes is the
+**FinIR Intent Contract** — see [intent-contract.md](intent-contract.md) and the
+machine-readable [`schemas/finir-intent-v1.schema.json`](../schemas/finir-intent-v1.schema.json)
+(`finir.intent.json_schema()`). Validate a payload with
+`FinIRIntent.from_obj(payload)`; execute with `model.apply_intent(payload)`.
+
 ## Structured intent (core)
 
 Core FinIR consumes **structured** intent — no natural-language parsing inside the
-core. `apply_intent` accepts:
+core. `apply_intent` accepts the canonical envelope (and a legacy single-op dict):
 
 ```python
 model.apply_intent({"operation": "relative_change", "target": "cogs", "value": 0.04})

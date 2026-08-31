@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "status": "valid",
+  "operations": [
+    { "operation": "set", "target": "cogs", "value": 60, "unit": "days" }
+  ]
+}

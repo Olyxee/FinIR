@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Olyxee/finir/schemas/finir-intent-v1.schema.json",
+  "title": "FinIR Intent Contract",
+  "description": "The canonical, versioned interface a natural-language layer emits and the FinIR runtime consumes. Structural validation only; semantic validation (target existence, unit/currency vs. the target's finance type) happens at execution against a specific model. Grounded in the FinIR runtime's apply_intent / what_if / scenarios / run_scenarios.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Identifies the compatibility contract."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["valid", "ambiguous", "unsupported", "invalid"],
+      "description": "valid=safe to execute; ambiguous=understandable but missing required quantitative detail; unsupported=clear but FinIR cannot represent it; invalid=structurally/semantically invalid."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Human-readable explanation. Recommended for non-valid statuses."
+    },
+    "operations": {
+      "type": "array",
+      "description": "Simultaneous changes to the base model state. Present (possibly empty) for operation intents.",
+      "items": { "$ref": "#/$defs/operation" }
+    },
+    "scenarios": {
+      "type": "array",
+      "description": "Named scenarios, each a set of simultaneous operations against the base. Present only for scenario intents.",
+      "items": { "$ref": "#/$defs/scenario" }
+    }
+  },
+  "allOf": [
+    {
+      "description": "Non-valid intents are not executable: no operations and no scenarios.",
+      "if": {
+        "properties": { "status": { "enum": ["ambiguous", "unsupported", "invalid"] } }
+      },
+      "then": {
+        "properties": {
+          "operations": { "maxItems": 0 },
+          "scenarios": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "description": "An intent carries either operations or scenarios, not both non-empty.",
+      "not": {
+        "allOf": [
+          { "properties": { "operations": { "minItems": 1 } }, "required": ["operations"] },
+          { "properties": { "scenarios": { "minItems": 1 } }, "required": ["scenarios"] }
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "target": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The name of a model INPUT node (e.g. 'cogs', 'revenue', 'payment_terms'). Not a canonical metric ontology; FinIR does not resolve aliases. Must exist as an input in the target model at execution time."
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "ISO-4217 currency code (e.g. 'ZAR', 'USD'). If omitted for a money target, the target's own currency is inherited. If present it must equal the target's currency, else the intent is invalid at execution (no implicit FX)."
+    },
+    "unit": {
+      "type": "string",
+      "enum": ["money", "percentage", "ratio", "days", "rate", "quantity", "scalar"],
+      "description": "Optional declared unit of the value, aligned with the FinIR type system. Must be compatible with the target's finance type at execution."
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operation", "target"],
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": ["relative_change", "set", "absolute_change", "range"]
+        },
+        "target": { "$ref": "#/$defs/target" },
+        "value": { "type": "number" },
+        "unit": { "$ref": "#/$defs/unit" },
+        "currency": { "$ref": "#/$defs/currency" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "steps": { "type": "integer", "minimum": 2 }
+      },
+      "oneOf": [
+        {
+          "title": "relative_change",
+          "description": "new = current * (1 + value). value is a dimensionless decimal (e.g. -0.08 means -8%).",
+          "properties": {
+            "operation": { "const": "relative_change" },
+            "value": { "type": "number" }
+          },
+          "required": ["value"],
+          "not": { "anyOf": [
+            { "required": ["unit"] },
+            { "required": ["currency"] },
+            { "required": ["min"] },
+            { "required": ["max"] },
+            { "required": ["steps"] }
+          ] }
+        },
+        {
+          "title": "set",
+          "description": "new = value (absolute set). unit/currency optional and must match the target's type.",
+          "properties": {
+            "operation": { "const": "set" },
+            "value": { "type": "number" }
+          },
+          "required": ["value"],
+          "not": { "anyOf": [ { "required": ["min"] }, { "required": ["max"] }, { "required": ["steps"] } ] }
+        },
+        {
+          "title": "absolute_change",
+          "description": "new = current + value (additive). Maps to the runtime's additive change. unit/currency optional and must match the target's type.",
+          "properties": {
+            "operation": { "const": "absolute_change" },
+            "value": { "type": "number" }
+          },
+          "required": ["value"],
+          "not": { "anyOf": [ { "required": ["min"] }, { "required": ["max"] }, { "required": ["steps"] } ] }
+        },
+        {
+          "title": "range",
+          "description": "A batch sweep: set the target to `steps` absolute values evenly spaced over [min, max]. Executed via run_scenarios. A range operation must be the only operation in its intent (it produces a vectorized batch).",
+          "properties": {
+            "operation": { "const": "range" },
+            "min": { "type": "number" },
+            "max": { "type": "number" },
+            "steps": { "type": "integer", "minimum": 2 }
+          },
+          "required": ["min", "max", "steps"],
+          "not": { "required": ["value"] }
+        }
+      ]
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "operations"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "operations": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              { "$ref": "#/$defs/operation" },
+              { "not": { "properties": { "operation": { "const": "range" } }, "required": ["operation"] } }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0",
+  "status": "ambiguous",
+  "reason": "No quantitative margin target was specified.",
+  "operations": []
+}

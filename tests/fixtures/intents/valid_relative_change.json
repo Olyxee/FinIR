@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "status": "valid",
+  "operations": [
+    { "operation": "relative_change", "target": "cogs", "value": 0.04 }
+  ]
+}

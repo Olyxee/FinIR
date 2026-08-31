@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0",
+  "status": "unsupported",
+  "reason": "Acquiring a competitor cannot be represented as a FinIR model mutation.",
+  "operations": []
+}

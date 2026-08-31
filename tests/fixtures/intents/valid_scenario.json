@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "status": "valid",
+  "scenarios": [
+    { "name": "base", "operations": [] },
+    { "name": "upside", "operations": [ { "operation": "relative_change", "target": "revenue", "value": 0.10 } ] },
+    { "name": "downside", "operations": [
+        { "operation": "relative_change", "target": "revenue", "value": -0.08 },
+        { "operation": "relative_change", "target": "cogs", "value": 0.05 }
+      ] }
+  ]
+}
