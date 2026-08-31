@@ -6,19 +6,8 @@ AI systems increasingly reason about finance, but their numerical execution stil
 falls back to generated Python, spreadsheets, SQL, or generic tensor frameworks.
 FinIR gives financial reasoning a dedicated compiler target.
 
-```
-AI Financial Intent
-        ↓
-      FinIR
-        ↓
-Dependency Analysis
-        ↓
-Incremental Execution
-        ↓
-CPU / SIMD / GPU
-        ↓
-Financial Result
-```
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/20298bac-2d01-4b65-8b83-01643e500851" />
+
 
 [![CI](https://github.com/Olyxee/finir/actions/workflows/ci.yml/badge.svg)](https://github.com/Olyxee/finir/actions/workflows/ci.yml)
 &nbsp;License: Apache-2.0 &nbsp;·&nbsp; Python 3.11+ &nbsp;·&nbsp; CPU-first, optional GPU
