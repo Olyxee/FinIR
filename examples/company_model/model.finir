@@ -1,0 +1,19 @@
+model company {
+  input revenue: money[ZAR]
+  input cogs: money[ZAR]
+  input opex: money[ZAR]
+  input receivable_days: days
+  input payable_days: days
+  input inventory: money[ZAR]
+
+  gross_profit  = revenue - cogs
+  gross_margin  = gross_profit / revenue
+  ebitda        = gross_profit - opex
+  receivables   = receivables(revenue, receivable_days)
+  payables      = payables(cogs, payable_days)
+  working_capital = working_capital(receivables, inventory, payables)
+
+  output gross_margin
+  output ebitda
+  output working_capital
+}

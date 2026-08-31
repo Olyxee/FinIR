@@ -1,69 +1,65 @@
-# Contributing to EIF
+# Contributing to FinIR
 
-Thank you for considering a contribution to the Economic Intelligence Framework.
-EIF aims to be **boring, reliable infrastructure**: composable, explicit, and
-honest. Contributions that keep it that way are very welcome.
+Thank you for considering a contribution. FinIR aims to be a **small, serious
+systems project**: a compiler/runtime target for financial computation. Contributions
+that keep it small, correct, and honest are very welcome.
 
 ## Ground rules
 
-- **No secrets or real data.** Never commit credentials, API keys, or real
-  customer/financial data. All example and benchmark data must be synthetic and
-  clearly labeled as such.
-- **Determinism first.** Numeric results should be computed in code, not by a
-  model. If a model is involved, its output must be validated against a typed
-  schema and its influence documented.
-- **Research integrity.** Do not tune labels or hide unfavorable results. If EIF
-  performs worse in a case, report it (see `research/experiment_001.md`).
+- **CPU-first, no network for core tests.** The framework must remain fully usable on
+  a CPU-only machine with no optional dependencies.
+- **No fabricated performance.** Benchmark scripts must execute real code and write
+  measured results. Never hard-code numbers. If GPU hardware is unavailable, report
+  GPU performance as unverified — do not invent it.
+- **No hype in the repo.** Do not add "world's first", "revolutionary", or
+  "breakthrough". Novelty claims stay hypotheses until a prior-art review supports
+  them (see `research/prior_art.md`).
+- **No fake complexity.** No Kubernetes, auth, billing, dashboards, microservices,
+  databases, or ERP/CRM connectors unless the runtime genuinely needs them.
 
 ## Development setup
 
 ```bash
-git clone https://github.com/Lethabo-Scofield/economic-intelligence-framework
-cd economic-intelligence-framework
+git clone https://github.com/Lethabo-Scofield/finir
+cd finir
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 pre-commit install
 ```
 
-## Quality gates (run before opening a PR)
+## Quality gates (run before a PR)
 
 ```bash
-ruff check src tests
-ruff format --check src tests
-mypy
+ruff check .
+ruff format --check .
+mypy src
 pytest
 ```
 
-All four must pass. CI runs them on Python 3.11, 3.12, and 3.13.
+All four must pass. CI runs them on Python 3.11, 3.12, and 3.13 (CPU only).
 
-## Extending EIF
+## Extending FinIR
 
-Most contributions plug into an existing extension point — no framework changes
-needed:
+Most contributions plug into an existing seam — see [docs/extending.md](docs/extending.md):
 
-| You want to add…            | Do this                                                        |
-|-----------------------------|----------------------------------------------------------------|
-| A new **event type**        | `EVENT_REGISTRY.register(EventTypeDefinition(...))`             |
-| A new **connector**         | Subclass `EIFConnector`, register it in a `ConnectorRegistry`  |
-| A new **model provider**    | Implement `LLMProvider` / `EmbeddingProvider` / etc.           |
-| A new **impact strategy**   | Add a `_strategy_<name>` method / custom `ImpactEstimator`     |
-| A new **benchmark case**    | Add a case dir under `benchmarks/cases/` (mark it synthetic)   |
+| Add… | How |
+|------|-----|
+| a **kernel** | `@finir.kernel(...)` |
+| a **backend** | subclass `ExecutionBackend` |
+| a **stdlib template** | a function that adds nodes to a model |
+| a **compiler pass** | add to `finir.compiler.passes` + the pipeline |
+| a **benchmark** | add to `finir.benchmark`, write results to `benchmarks/results/` |
 
-See `docs/extending.md` for details and examples.
+## Conventions
 
-## Commit / PR conventions
+- One logical change per PR; add or update tests for any behavior change.
+- Update `docs/` when public behavior changes.
+- Keep the IR JSON schema backward-compatible, or bump `IR_SCHEMA_VERSION`.
 
-- Keep PRs focused; one logical change per PR.
-- Add or update tests for any behavior change.
-- Update `docs/` and `README.md` when public behavior changes.
-- Fill in the PR template checklist.
+## Security
 
-## Reporting security issues
-
-Please **do not** open a public issue for vulnerabilities. Follow the process in
-[SECURITY.md](SECURITY.md).
+Please report vulnerabilities privately — see [SECURITY.md](SECURITY.md).
 
 ## License
 
-By contributing, you agree that your contributions are licensed under the
-Apache-2.0 License (see [LICENSE](LICENSE)).
+By contributing you agree your contributions are licensed under Apache-2.0.

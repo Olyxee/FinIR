@@ -1,4 +1,4 @@
-<!-- Thanks for contributing to EIF! -->
+<!-- Thanks for contributing to FinIR! -->
 
 ## What does this change?
 
@@ -24,5 +24,5 @@
 
 ## Research integrity (if this touches benchmarks/evaluation)
 
-- [ ] Results are reported honestly, including cases where EIF does worse
+- [ ] Results are reported honestly, including cases where FinIR does worse
 - [ ] No hand-tuning of labels to flatter the framework

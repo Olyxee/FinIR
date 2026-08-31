@@ -1,19 +1,19 @@
 name: Feature request
-description: Propose a new capability (event type, connector, provider, strategy, ...)
+description: Propose a new capability (kernel, backend, compiler pass, template, ...)
 labels: ["enhancement"]
 body:
   - type: textarea
     id: problem
     attributes:
       label: Problem / use case
-      description: What economic signal or integration is currently hard or impossible?
+      description: What financial computation or integration is currently hard or impossible?
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
       label: Proposed solution
-      description: How might EIF support this? Which extension point (connector, event type, impact strategy, provider)?
+      description: How might FinIR support this? Which extension point (kernel, backend, compiler pass, stdlib template, IR feature)?
     validations:
       required: true
   - type: textarea

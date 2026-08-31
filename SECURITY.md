@@ -4,46 +4,38 @@
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, open a private
-[GitHub Security Advisory](https://github.com/Lethabo-Scofield/economic-intelligence-framework/security/advisories/new)
-for this repository. We aim to acknowledge reports within 5 business days and to
-provide a remediation timeline after triage.
+Open a private
+[GitHub Security Advisory](https://github.com/Lethabo-Scofield/finir/security/advisories/new)
+for this repository. We aim to acknowledge within 5 business days.
 
-Please include:
-
-- A description of the vulnerability and its impact
-- Steps to reproduce (a minimal, **synthetic** example — never real data)
-- Affected version(s) and environment
+Please include a description, a minimal reproduction (synthetic data only), and the
+affected version(s).
 
 ## Supported versions
 
-EIF is pre-1.0. Security fixes are applied to the latest released minor version.
+FinIR is pre-1.0. Security fixes target the latest released minor version.
 
 | Version | Supported |
 |---------|-----------|
 | 0.1.x   | ✅         |
 
-## Scope and threat model
+## Scope and posture
 
-A full threat model lives in [docs/security.md](docs/security.md). In brief, EIF
-processes potentially sensitive financial and business evidence, so it ships with
-conservative defaults:
+FinIR is a library/runtime for financial computation. It:
 
-- Secrets are read only from environment variables; none are committed.
-- File ingestion enforces size limits and a MIME allow-list, and handles paths
-  safely.
-- Persistence uses parameterized queries (SQLAlchemy); no string-built SQL.
-- Optional PII redaction and content hashing are available for stored evidence.
-- A **private mode** refuses to transmit evidence to any off-host model provider.
+- has **no network requirement** for its core, and makes no outbound calls;
+- reads only files you point it at (a `.finir` model or a JSON model);
+- parses its IR with a small, explicit parser — it does **not** `eval` arbitrary
+  Python or execute untrusted code;
+- treats a loaded `.finir`/JSON model as data, not code.
 
-## What is out of scope
+### Untrusted models
 
-- Vulnerabilities in optional third-party providers (OpenAI, Anthropic, Gemini)
-  or databases themselves — report those upstream.
-- Findings that require running untrusted code you supplied to the framework.
+A `.finir` or model JSON file is executable configuration: it can reference kernels
+and drive computation. Treat model files from untrusted sources with the same care
+as any code input. FinIR does not sandbox custom kernels you register.
 
 ## No certifications claimed
 
-EIF does not claim any security certification (SOC 2, ISO 27001, etc.). It
-provides sensible engineering defaults; operators remain responsible for securing
-their own deployment.
+FinIR claims no security certification. It provides sensible engineering defaults;
+operators are responsible for securing their own deployment.

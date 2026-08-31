@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability
-    url: https://github.com/Lethabo-Scofield/economic-intelligence-framework/security/advisories/new
+    url: https://github.com/Lethabo-Scofield/finir/security/advisories/new
     about: Please report security issues privately via a GitHub Security Advisory, not a public issue. See SECURITY.md.
   - name: Question / discussion
-    url: https://github.com/Lethabo-Scofield/economic-intelligence-framework/discussions
+    url: https://github.com/Lethabo-Scofield/finir/discussions
     about: Ask usage questions and share ideas in Discussions.

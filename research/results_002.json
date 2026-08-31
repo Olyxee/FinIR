@@ -1,0 +1,45 @@
+{
+  "hardware": {
+    "timestamp_utc": "2026-08-31T21:39:49.165063+00:00",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.7",
+    "numpy": "2.5.2",
+    "finir": "0.1.0",
+    "gpu_available": false
+  },
+  "research_question": "At what scenario batch size does GPU beat vectorized CPU for finance graphs?",
+  "rows": [
+    {
+      "size": 1000,
+      "cpu_s": 7.879999611759558e-05,
+      "gpu_s": null,
+      "gpu_speedup": null
+    },
+    {
+      "size": 10000,
+      "cpu_s": 0.0002916999947046861,
+      "gpu_s": null,
+      "gpu_speedup": null
+    },
+    {
+      "size": 100000,
+      "cpu_s": 0.0027059000058216043,
+      "gpu_s": null,
+      "gpu_speedup": null
+    },
+    {
+      "size": 1000000,
+      "cpu_s": 0.045569200003228616,
+      "gpu_s": null,
+      "gpu_speedup": null
+    },
+    {
+      "size": 5000000,
+      "cpu_s": 0.2653160999980173,
+      "gpu_s": null,
+      "gpu_speedup": null
+    }
+  ],
+  "empirical_gpu_crossover": null,
+  "note": "No CUDA device on this machine; GPU rows are null and the crossover is UNVERIFIED locally. The dispatch default (GPU_MIN_ELEMENTS) is a heuristic to be calibrated on GPU hardware."
+}

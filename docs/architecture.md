@@ -1,68 +1,50 @@
 # Architecture
 
-EIF is a library first, with an optional API and CLI on top. Everything is
-composed from small, replaceable parts.
-
-## Layers
+FinIR is a small stack of cleanly separated layers. Each layer has one job and a
+narrow interface, so parts can be replaced independently.
 
 ```
-          ┌─────────────────────────────────────────────┐
-  CLI  ───▶            EIF facade (eif.EIF)              ◀─── API (FastAPI)
-          └───────────────────┬─────────────────────────┘
-                              │
-        ┌──────────────────── Pipeline ────────────────────┐
-        │ Connectors → Observation Extractor → Entity       │
-        │ Resolution → Candidate Generation → Impact        │
-        │ Estimation → Materiality → Graph Integration      │
-        └───────────────────┬───────────────────────────────┘
-             providers │     │ ontology (event/entity/metric registries)
-        ┌──────────────▼─────▼───────────────┐
-        │  Event Graph  ──▶  Repository       │  (memory | SQLite | Postgres)
-        └────────────────────────────────────┘
+Agent / Developer API          finir.FinancialModel, apply_intent
+        │
+FinIR Builder                  model.input / define / output
+        │
+Financial IR                   finir.ir: Module, Expr, types  (.finir / JSON)
+        │
+Compiler Passes                finir.compiler: validate, typecheck, fold, CSE, DCE, ...
+        │
+Execution Plan                 needed nodes, dirty cones, backend choice
+        │
+Incremental Runtime            finir.runtime: engine + cache + state
+        │
+Kernel Backend                 finir.backends: NumPy (CPU), optional CuPy (GPU)
+        │
+CPU / SIMD / optional GPU
 ```
 
-## The pipeline
+## Responsibilities
 
-`EIFPipeline.process_evidence` runs these stages (each injectable):
+| Layer | Module | Job |
+|-------|--------|-----|
+| API | `finir.model` | ergonomic model building, what-if, scenarios, intent |
+| IR | `finir.ir` | typed nodes + expressions; parse/print/serialize/validate |
+| Types | `finir.types` | the finance algebra (money/percentage/days/...) |
+| Compiler | `finir.compiler` | analysis + optimization passes over the IR |
+| Runtime | `finir.runtime` | dependency-aware incremental evaluation + cache + state |
+| Backends | `finir.backends` | how a node's arithmetic actually runs, + dispatch |
+| Kernels | `finir.kernels` | finance-native operations + the extension registry |
+| Stdlib | `finir.stdlib` | reusable model templates |
 
-1. **Persist evidence** — store the immutable source with its content hash.
-2. **Extract observations** — deterministic signal extraction (money, %,
-   durations, dates, entities, tables) → `Observation`s with citations.
-3. **Resolve entities** — collapse duplicates to canonical entities; rewrite refs.
-4. **Generate candidates** — rule-based mapping of observations → candidate
-   `EconomicEvent`s, grouped so conflicting signals stay separate.
-5. **Estimate impact** — per-event-type deterministic strategies compute numbers
-   with full calculation provenance (or *no* number if inputs are missing).
-6. **Assess materiality** — absolute/relative thresholds classify each event.
-7. **Integrate into the graph** — event resolution decides new vs
-   reinforce/weaken/contradict/resolve; persists the result.
+## Data flow (what happens on `evaluate`)
 
-See [economic-events.md](economic-events.md), [observations.md](observations.md),
-[impact-estimation.md](impact-estimation.md).
+1. `FinancialModel` validates + type-checks the `Module` and builds an
+   `IncrementalEngine` (once; rebuilt only on structural change).
+2. The engine computes the set of nodes needed for the requested targets.
+3. For each needed node in dependency order: reuse its stored value if still valid
+   (O(1)); otherwise recompute via the backend and mark it valid.
+4. Changing an input invalidates only its downstream cone, so the next evaluation
+   recomputes exactly what changed.
 
-## The event graph
+## What FinIR is not
 
-Events persist across runs. New evidence updates existing events in place rather
-than creating duplicates. `EventGraph` sits over the `Repository` interface, so it
-works identically on the in-memory and SQL backends and could be re-implemented on
-a native graph database behind the same interface. See
-[../src/eif/graph/graph.py](../src/eif/graph/graph.py).
-
-## Storage
-
-One `Repository` interface, two backends:
-
-- **MemoryRepository** — zero-dependency, for tests and quick use.
-- **SqlRepository** — SQLAlchemy, document-in-relational layout, identical on
-  SQLite and PostgreSQL. See [deployment.md](deployment.md).
-
-## Providers
-
-Four capability interfaces (`LLMProvider`, `EmbeddingProvider`, `VisionProvider`,
-`TranscriptionProvider`). Deterministic mocks are the default; OpenAI-compatible,
-Anthropic, and Gemini adapters are optional. See [providers.md](providers.md).
-
-## What EIF is not
-
-Not a website, dashboard, SaaS product, or chatbot. No frontend, auth UI, billing,
-or fake integrations. It is infrastructure other systems build on.
+Not a website, dashboard, ERP, FP&A product, trading platform, agent framework, or
+generic DAG engine. It is a **compiler/runtime target** for financial computation.

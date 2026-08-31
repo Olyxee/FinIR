@@ -1,257 +1,201 @@
-# Economic Intelligence Framework (EIF)
+# FinIR
 
-**Recognize economic consequences before they reach the ledger.**
+**A financial intermediate representation and incremental execution runtime for AI systems.**
 
-EIF turns multimodal business evidence — documents, communications, operational
-data, and financial records — into standardized **economic events** with
-quantified impacts, uncertainty, timing, and provenance.
+AI systems increasingly reason about finance, but their numerical execution still
+falls back to generated Python, spreadsheets, SQL, or generic tensor frameworks.
+FinIR gives financial reasoning a dedicated compiler target.
 
 ```
-Business Evidence
-      ↓
-Observations
-      ↓
-Economic Events
-      ↓
-Financial Consequences
+AI Financial Intent
+        ↓
+      FinIR
+        ↓
+Dependency Analysis
+        ↓
+Incremental Execution
+        ↓
+CPU / SIMD / GPU
+        ↓
+Financial Result
 ```
 
-EIF is **open infrastructure**, not a website, dashboard, SaaS product, or
-chatbot. It is model-agnostic, runs fully offline by default, does its arithmetic
-deterministically in code, and traces every conclusion back to its evidence.
+[![CI](https://github.com/Lethabo-Scofield/finir/actions/workflows/ci.yml/badge.svg)](https://github.com/Lethabo-Scofield/finir/actions/workflows/ci.yml)
+&nbsp;License: Apache-2.0 &nbsp;·&nbsp; Python 3.11+ &nbsp;·&nbsp; CPU-first, optional GPU
 
-[![CI](https://github.com/Lethabo-Scofield/economic-intelligence-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/Lethabo-Scofield/economic-intelligence-framework/actions/workflows/ci.yml)
-&nbsp;License: Apache-2.0 &nbsp;·&nbsp; Python 3.11+
+## Quick start
 
----
+```python
+from finir import FinancialModel
 
-## Why EIF exists
+model = FinancialModel()
 
-Businesses generate economically important information long before it appears in
-financial systems:
+model.input("revenue", 500_000_000, currency="ZAR")
+model.input("cogs", 300_000_000, currency="ZAR")
+model.input("opex", 120_000_000, currency="ZAR")
 
-- A supplier announces a future price increase in an **email**.
-- A customer signals reduced orders on a **call**.
-- A **contract** contains an upcoming obligation.
-- A project **meeting** reveals a likely delay.
-- Operational **data** shows inventory accumulating.
+model.define("gross_profit", "revenue - cogs")
+model.define("ebitda", "gross_profit - opex")
 
-Traditional finance systems understand these consequences only *after* they become
-structured transactions, accounting entries, or KPIs. By then the window to act
-has narrowed. EIF provides the missing abstraction so you can **recognize economic
-reality while it is still emerging.**
+model.evaluate()
 
-## What problem it solves
+scenario = model.what_if(cogs="+4%")
 
-EIF gives you one standard representation for economic reality across every
-modality, so downstream systems (risk, planning, FP&A, treasury) can consume a
-single machine-readable stream of events and impacts instead of re-parsing emails,
-PDFs, and spreadsheets themselves. It differs from BI/ERP (which report structured
-history), from document AI (which extracts text, not economic consequence), and
-from a chatbot (which produces prose, not typed, provenanced, quantified events).
+print(scenario["ebitda"])
+```
+
+Change one assumption and FinIR recomputes **only the affected part of the graph**:
+
+```
+Input changed:
+  COGS
+
+Recomputed:
+  COGS → Gross Profit → EBITDA → Gross Margin → Cash Flow
+
+Reused (from cache):
+  Revenue, Payroll, Debt, Receivables, ...
+```
+
+Install:
+
+```bash
+pip install -e ".[dev]"     # from source (not yet on PyPI)
+finir --help
+```
+
+## Why FinIR
+
+When an AI needs to compute *"increase supplier costs 7% and extend payment terms
+30→60 days,"* it usually translates that into arbitrary generated code — inefficient,
+non-deterministic, unaudited, and recomputed from scratch every turn. FinIR replaces
+that with a standard boundary:
+
+```
+financial intent  →  FinIR  →  deterministic, incremental financial execution
+```
+
+It understands financial semantics (revenue, COGS, gross margin, EBITDA, working
+capital, receivables/payables, free cash flow, NPV, unit economics, payment terms,
+…) and their computational dependencies — so it can recompute only what changed and
+reuse the rest.
+
+## What is a Financial IR?
+
+A typed computation graph with a finance-native type system:
+
+```
+revenue      = input money[ZAR]
+cogs         = input money[ZAR]
+gross_profit = revenue - cogs        : money[ZAR]
+gross_margin = gross_profit / revenue : ratio
+```
+
+`money - money → money` (same currency, else an error); `money / money → ratio`;
+`money + days` is a type error. See [docs/ir.md](docs/ir.md) and
+[docs/type-system.md](docs/type-system.md).
 
 ## Architecture
 
 ```
-  CLI  ─▶   EIF facade   ◀─ API (FastAPI, optional)
-              │
-   Connectors → Observation Extractor → Entity Resolution →
-   Candidate Generation → Impact Estimation → Materiality →
-   Event Graph Integration
-              │
-        Event Graph ─▶ Repository  (memory · SQLite · PostgreSQL)
+Agent / Developer API → FinIR Builder → Financial IR → Compiler Passes
+  → Execution Plan → Incremental Runtime → Kernel Backend → CPU / SIMD / GPU
 ```
 
-Every stage is a replaceable interface. See [docs/architecture.md](docs/architecture.md).
+Each layer is cleanly separated. See [docs/architecture.md](docs/architecture.md).
 
-## Quick start
+## Incremental execution
 
-> EIF is not yet published to PyPI. Install from source:
+Changing one input invalidates only its downstream cone; the next evaluation
+recomputes exactly those nodes and reuses everything else in O(1). This is FinIR's
+reason to exist — see [docs/runtime.md](docs/runtime.md) and
+[docs/caching.md](docs/caching.md).
+
+## Scenario engine
+
+`what_if`, named `scenarios`, and vectorized `run_scenarios` over million-row
+batches. See [docs/scenarios.md](docs/scenarios.md).
+
+## Financial types
+
+`money[CCY]`, `percentage`, `ratio`, `days`, `quantity`, `rate`, `series`,
+`scenario`, `scalar`, `bool` — enforced at compile time. See
+[docs/type-system.md](docs/type-system.md).
+
+## Kernels
+
+Arithmetic, corporate finance, working capital, time-value-of-money, and basic risk
+— plus a `@finir.kernel` extension point. Deliberately small (not a quant library).
+See [docs/kernels.md](docs/kernels.md).
+
+## Compiler passes
+
+Validation, type checking, constant folding, CSE, dead-node elimination, dependency
+pruning, scenario vectorization, fusion analysis, cache planning. Inspect with
+`finir compile model.finir --show-passes`. See [docs/compiler.md](docs/compiler.md).
+
+## Agent integration
+
+Core FinIR consumes **structured** intent (`apply_intent`); natural-language
+interpretation is an optional `IntentCompiler` layer (a dependency-free
+`MockIntentCompiler` ships for offline use). The model interprets; the runtime
+computes. See [docs/agent-integration.md](docs/agent-integration.md).
+
+## CPU / GPU dispatch
+
+CPU-first and fully usable with no optional dependencies. A workload-aware planner
+sends very large scenario batches to an optional CuPy GPU backend when present. See
+[docs/backends.md](docs/backends.md).
+
+## Benchmarks
 
 ```bash
-git clone https://github.com/Lethabo-Scofield/economic-intelligence-framework
-cd economic-intelligence-framework
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
+finir benchmark --full
+python benchmarks/run_benchmarks.py     # writes benchmarks/results/
 ```
 
-Run the end-to-end example (fully offline, no API keys):
-
-```bash
-python examples/quickstart.py
-```
-
-Or use the CLI:
-
-```bash
-eif analyze examples/data/
-eif events
-eif doctor
-```
-
-_(Once published, installation will be `pip install economic-intelligence-framework`.)_
-
-## Example
-
-```python
-from eif import EIF
-
-eif = EIF()
-
-result = eif.analyze([
-    "supplier_email.txt",     # "...10% price increase on SKU-A, effective 1 November 2026"
-    "master_agreement.txt",   # contract: affected products
-    "purchase_history.csv",   # annual spend = R42,000,000
-])
-
-for event in result.events:
-    print(event.event_type, event.primary_impact())
-```
-
-Produces one machine-readable economic event — with a **deterministic** impact
-calculation and full provenance:
-
-```json
-{
-  "event_type": "supplier_price_change",
-  "status": "emerging",
-  "confidence": 0.75,
-  "effective_at": "2026-11-01",
-  "impacts": [
-    {
-      "metric": "cost_of_goods_sold",
-      "direction": "increase",
-      "estimate": 4200000,
-      "currency": "ZAR"
-    }
-  ]
-}
-```
-
-The number is not guessed by a model — it is computed in code and recorded:
-`annual_spend (42,000,000) × pct (10) / 100 = 4,200,000`.
-
-## Economic Event specification
-
-An `EconomicEvent` is a typed, versioned, persistent node with entities, timing
-(`detected_at` / `effective_at`), magnitude, probability, calibrated confidence,
-affected metrics, estimated `impacts` (each an interval, not a bare number),
-assumptions, materiality, status, and mandatory provenance. Event types are an
-**open registry** (22+ built-in). Full spec: [docs/economic-events.md](docs/economic-events.md).
-
-## Multimodal architecture
-
-Connectors normalize every source into a common `Evidence` format:
-
-- **Reference (offline):** text, email (`.eml`), JSON, CSV, Excel, PDF, audio,
-  image, directory.
-- **Integration placeholders (typed interfaces):** email inbox, Slack/Teams, CRM,
-  ERP, database, cloud storage — real interfaces, no fake implementations.
-
-Deterministic extraction pulls money, percentages, durations, dates, entities, and
-table sums out of evidence — conservatively, never guessing. See
-[docs/connectors.md](docs/connectors.md), [docs/observations.md](docs/observations.md).
-
-## Evaluation & ESLT
-
-EIF's headline metric is **Economic Signal Lead Time (ESLT)**:
-
-```
-ESLT = traditional_detected_at − eif_detected_at   (days; positive = EIF earlier)
-```
-
-It also reports detection precision/recall/F1, impact MAE/MAPE, interval coverage,
-false-positive rate, and confidence calibration (ECE). See
-[docs/evaluation.md](docs/evaluation.md).
-
-## Model providers
-
-Model-agnostic by design. The default is a **deterministic mock** provider, so
-everything runs and is tested offline. Optional adapters: OpenAI /
-OpenAI-compatible (Azure, vLLM, Ollama), Anthropic, Gemini. Models handle
-*interpretation only*; numbers stay in code. See [docs/providers.md](docs/providers.md).
-
-## Privacy
-
-EIF runs fully local by default (mock provider, local embeddings, SQLite). Set
-`private_mode: true` and any attempt to send evidence off-host raises an error.
-Point an OpenAI-compatible provider at a local endpoint to use models without
-leaving your network. See [docs/privacy.md](docs/privacy.md).
-
-## Production deployment
-
-```bash
-docker compose up                # API on SQLite
-docker compose --profile pg up   # API on PostgreSQL
-curl http://localhost:8000/health
-```
-
-Same code and schema on SQLite (dev) and PostgreSQL (prod) — change one URL. The
-optional FastAPI service exposes versioned `/v1` endpoints with pagination,
-structured errors, and auto-generated OpenAPI. See [docs/deployment.md](docs/deployment.md).
-
-## Extending EIF
-
-Add event types, connectors, providers, impact strategies, storage backends, or
-benchmark cases — all through existing extension points, no framework changes. See
-[docs/extending.md](docs/extending.md).
-
-## Benchmark
-
-```bash
-eif benchmark generate benchmarks/cases
-eif benchmark report --cases benchmarks/cases   # baseline vs EIF
-```
-
-Ships an open case format and eight synthetic scenarios (all labeled synthetic).
-See [docs/benchmark.md](docs/benchmark.md).
+On the reference machine: **1.7×–2.2× faster** iterative reasoning vs. full
+recompute (up to 99.6% cache hits), and ~1,000,000 scenarios in ~46 ms on CPU. All
+numbers are measured, never hard-coded. See [docs/performance.md](docs/performance.md).
 
 ## Research
 
-A reproducible reference experiment asks: *does multimodal business evidence
-identify material events earlier or more accurately than structured data alone?*
+- [research/experiment_001_incremental_financial_reasoning.md](research/experiment_001_incremental_financial_reasoning.md) — incremental vs. full recompute
+- [research/experiment_002_backend_dispatch.md](research/experiment_002_backend_dispatch.md) — CPU/GPU crossover (GPU unverified locally)
+- [research/prior_art.md](research/prior_art.md) — critical positioning vs. spreadsheets, incremental-computation systems, JAX/XLA/MLIR, QuantLib, planning engines, and more
 
-```bash
-python research/reproduce_experiment_001.py
-```
+We do **not** claim FinIR is a first or a breakthrough. The working hypothesis —
+that there is no widely-adopted open finance-specific IR designed as the execution
+boundary between AI financial intent and incremental computation — remains a
+hypothesis pending a formal prior-art review.
 
-On the synthetic suite, adding text/document evidence raised material-event
-**recall from 0.14 → 1.00** with no loss of precision and a **median ~57-day**
-lead over the modeled conventional indicator. These results demonstrate the
-mechanism and methodology on **synthetic** data — not a real-world efficacy claim.
-The writeup reports limitations honestly: [research/experiment_001.md](research/experiment_001.md).
+## Extending FinIR
+
+Custom kernels, backends, and templates; a stable JSON IR for other-language
+bindings. See [docs/extending.md](docs/extending.md).
 
 ## Roadmap
 
-- Stronger reference extractors (model-assisted, validated) and evaluation on real,
-  anonymized cases.
-- Embedding-based entity/event resolution behind the existing interfaces.
-- Event-bus adapters (Kafka, Redis Streams, NATS) behind the existing `EventBus`.
-- Native graph-DB repository adapter (Neo4j) behind the existing `Repository`.
-- Alembic migration recipes for managed Postgres deployments.
-- More impact strategies and event types.
+- Larger real-model benchmarks and agent-trace evaluation.
+- Measured GPU dispatch thresholds on CUDA hardware.
+- Optional lowering onto a tensor compiler (XLA/MLIR) for very large graphs.
+- Language bindings (TypeScript/Rust) over the JSON IR.
+- Autodiff / sensitivities as an optional layer.
 
 ## Contributing
 
-Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Quality gates:
-`ruff check`, `ruff format --check`, `mypy`, `pytest` (CI runs all on 3.11–3.13).
-Please keep data synthetic and results honest.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Quality gates: `ruff check .`,
+`ruff format --check .`, `mypy src`, `pytest`. CPU-only; no network for core tests.
 
 ## Citation
 
-If you use EIF in research, please cite it (see [CITATION.cff](CITATION.cff)):
-
-```
-EIF Contributors. Economic Intelligence Framework (EIF), v0.1.0, 2026.
-https://github.com/Lethabo-Scofield/economic-intelligence-framework
-```
+See [CITATION.cff](CITATION.cff).
 
 ## Acknowledgements
 
-This project's research direction was inspired in part by work such as
-**OmniScientist** and the broader movement toward omni-modal scientific reasoning.
-EIF is an **independent** framework: it contains no OmniScientist code and has no
-OmniScientist runtime dependency.
+Early research exploration was inspired by omni-modal scientific-reasoning systems
+(including work such as OmniScientist). FinIR is **independent**: no OmniScientist
+code and no runtime dependency on it.
 
 ## License
 
