@@ -1,0 +1,12 @@
+{
+  "events": [
+    {
+      "event_type": "capacity_change",
+      "entity_names": [],
+      "metric": "revenue",
+      "impact_value": 1200000,
+      "currency": "ZAR",
+      "materiality": "material"
+    }
+  ]
+}

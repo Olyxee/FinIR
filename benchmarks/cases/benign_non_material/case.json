@@ -1,0 +1,11 @@
+{
+  "id": "benign_non_material",
+  "title": "Benign, non-material price tweak",
+  "description": "A tiny price change on tiny spend should NOT be flagged as material (precision test).",
+  "synthetic": true,
+  "evidence_date": "2026-09-04",
+  "tags": [
+    "non-material",
+    "precision"
+  ]
+}

@@ -1,0 +1,2 @@
+Supplier note
+Supplier ABC will apply a minor 0.5% price adjustment on SKU-A next month. Spend on this line is small.

@@ -1,0 +1,14 @@
+{
+  "events": [
+    {
+      "event_type": "project_delay",
+      "entity_names": [
+        "Alpha"
+      ],
+      "metric": "operating_expenses",
+      "impact_value": 975000,
+      "currency": "ZAR",
+      "materiality": "material"
+    }
+  ]
+}

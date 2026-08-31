@@ -1,0 +1,10 @@
+{
+  "id": "project_delay_cost_overrun",
+  "title": "Project delay implies a cost overrun",
+  "description": "Meeting notes quantify a delay-driven cost range ahead of any budget actuals.",
+  "synthetic": true,
+  "evidence_date": "2026-09-05",
+  "tags": [
+    "operations"
+  ]
+}

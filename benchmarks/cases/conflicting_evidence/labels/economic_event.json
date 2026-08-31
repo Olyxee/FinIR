@@ -1,0 +1,12 @@
+{
+  "events": [
+    {
+      "event_type": "supplier_price_change",
+      "entity_names": [
+        "ABC"
+      ],
+      "metric": "cost_of_goods_sold",
+      "materiality": "material"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "conflicting_evidence",
+  "title": "Conflicting supplier pricing signals",
+  "description": "A later message contradicts an earlier price-increase notice; the graph must reconcile.",
+  "synthetic": true,
+  "evidence_date": "2026-09-02",
+  "tags": [
+    "conflict"
+  ]
+}

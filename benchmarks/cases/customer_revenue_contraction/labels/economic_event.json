@@ -1,0 +1,14 @@
+{
+  "events": [
+    {
+      "event_type": "customer_contraction",
+      "entity_names": [
+        "XYZ"
+      ],
+      "metric": "revenue",
+      "impact_value": 1800000,
+      "currency": "ZAR",
+      "materiality": "material"
+    }
+  ]
+}

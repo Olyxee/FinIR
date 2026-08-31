@@ -1,0 +1,4 @@
+From: sales@abcsupplies.example
+Subject: Upcoming pricing change
+
+Supplier ABC intends to increase prices by 8% on SKU-A from 1 October 2026.

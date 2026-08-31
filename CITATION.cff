@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use EIF in your research, please cite it as below."
+title: "Economic Intelligence Framework (EIF)"
+abstract: >-
+  Open infrastructure for converting multimodal business evidence into
+  standardized, machine-readable economic events and estimated financial
+  consequences, with quantified uncertainty, timing, and provenance.
+type: software
+authors:
+  - name: "EIF Contributors"
+version: 0.1.0
+date-released: 2026-08-30
+license: Apache-2.0
+repository-code: "https://github.com/Lethabo-Scofield/economic-intelligence-framework"
+url: "https://github.com/Lethabo-Scofield/economic-intelligence-framework"
+keywords:
+  - economic intelligence
+  - financial events
+  - multimodal
+  - provenance
+  - risk
+  - forecasting
+  - economic signal lead time

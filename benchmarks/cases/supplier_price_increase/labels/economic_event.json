@@ -1,0 +1,14 @@
+{
+  "events": [
+    {
+      "event_type": "supplier_price_change",
+      "entity_names": [
+        "ABC"
+      ],
+      "metric": "cost_of_goods_sold",
+      "impact_value": 4200000,
+      "currency": "ZAR",
+      "materiality": "material"
+    }
+  ]
+}

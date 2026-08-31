@@ -1,0 +1,12 @@
+{
+  "events": [
+    {
+      "event_type": "contract_obligation",
+      "entity_names": [],
+      "metric": "operating_expenses",
+      "impact_value": 2000000,
+      "currency": "ZAR",
+      "materiality": "material"
+    }
+  ]
+}
