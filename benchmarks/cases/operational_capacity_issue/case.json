@@ -1,0 +1,10 @@
+{
+  "id": "operational_capacity_issue",
+  "title": "Operational capacity constraint",
+  "description": "A maintenance report signals a capacity/throughput constraint.",
+  "synthetic": true,
+  "evidence_date": "2026-09-08",
+  "tags": [
+    "operations"
+  ]
+}

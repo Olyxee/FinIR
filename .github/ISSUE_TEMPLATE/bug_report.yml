@@ -1,0 +1,51 @@
+name: Bug report
+description: Report a defect in EIF
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please do **not** include real customer data,
+        credentials, or secrets in this issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+      placeholder: EIF produced ... but I expected ...
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Smallest code / CLI command and (synthetic) evidence that reproduces it.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: EIF version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.11"
+    validations:
+      required: true
+  - type: dropdown
+    id: providers
+    attributes:
+      label: Provider in use
+      options:
+        - mock (default / offline)
+        - openai / openai-compatible
+        - anthropic
+        - gemini
+        - other
+    validations:
+      required: true

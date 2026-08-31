@@ -1,0 +1,2 @@
+Operations note — Warehouse 2
+Inventory for SKU-A has been accumulating; stock levels are up 15% over the last six weeks with no matching sales increase. Holding value is climbing.
