@@ -32,7 +32,11 @@ _ALLOWED_CATEGORIES = {
 
 
 def _rows() -> list[dict]:
-    return [json.loads(line) for line in DATASET.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return [
+        json.loads(line)
+        for line in DATASET.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
 
 def test_dataset_ids_are_unique() -> None:
@@ -57,9 +61,7 @@ def test_every_expected_intent_is_schema_valid(row: dict) -> None:
     assert not errors, f"{row['id']} expected_intent failed schema: {[e.message for e in errors]}"
 
 
-@pytest.mark.parametrize(
-    "row", [r for r in _rows() if "fixture" in r], ids=lambda r: r["id"]
-)
+@pytest.mark.parametrize("row", [r for r in _rows() if "fixture" in r], ids=lambda r: r["id"])
 def test_fixture_referenced_rows_match_the_shared_core_fixture(row: dict) -> None:
     """The 9 canonical fixtures must be reused verbatim, never re-typed by hand."""
     on_disk = json.loads((CORE_FIXTURES / row["fixture"]).read_text(encoding="utf-8"))

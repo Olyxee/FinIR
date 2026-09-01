@@ -106,8 +106,32 @@ _TARGET_ALIASES: dict[str, str] = {
 }
 _SORTED_ALIASES = sorted(_TARGET_ALIASES, key=len, reverse=True)
 
-_UP_WORDS = ("increase", "increases", "raise", "grow", "grows", "rise", "rises", "up", "higher", "extend")
-_DOWN_WORDS = ("decrease", "decreases", "reduce", "reduces", "cut", "cuts", "lower", "drop", "drops", "down", "fall", "falls")
+_UP_WORDS = (
+    "increase",
+    "increases",
+    "raise",
+    "grow",
+    "grows",
+    "rise",
+    "rises",
+    "up",
+    "higher",
+    "extend",
+)
+_DOWN_WORDS = (
+    "decrease",
+    "decreases",
+    "reduce",
+    "reduces",
+    "cut",
+    "cuts",
+    "lower",
+    "drop",
+    "drops",
+    "down",
+    "fall",
+    "falls",
+)
 # Word-boundary matching is required here: naive substring checks on these short
 # words false-positive constantly in ordinary English (e.g. "up" inside "supplier"
 # or "group", "down" inside "downside", "cut" inside "circuit").
@@ -174,22 +198,53 @@ _UNSUPPORTED_RE = re.compile(r"\b(?:" + "|".join(re.escape(w) for w in _UNSUPPOR
 # number phrase -- not a guess). Kept small and targeted: only the words needed to
 # resolve a spelled-out number, never a general vocabulary.
 _NUM_WORDS: dict[str, int] = {
-    "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
-    "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12,
-    "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17,
-    "eighteen": 18, "nineteen": 19, "twenty": 20, "thirty": 30, "forty": 40,
-    "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90,
+    "zero": 0,
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+    "eleven": 11,
+    "twelve": 12,
+    "thirteen": 13,
+    "fourteen": 14,
+    "fifteen": 15,
+    "sixteen": 16,
+    "seventeen": 17,
+    "eighteen": 18,
+    "nineteen": 19,
+    "twenty": 20,
+    "thirty": 30,
+    "forty": 40,
+    "fifty": 50,
+    "sixty": 60,
+    "seventy": 70,
+    "eighty": 80,
+    "ninety": 90,
 }
-_NUM_SCALES: dict[str, int] = {"hundred": 100, "thousand": 1_000, "million": 1_000_000, "billion": 1_000_000_000}
+_NUM_SCALES: dict[str, int] = {
+    "hundred": 100,
+    "thousand": 1_000,
+    "million": 1_000_000,
+    "billion": 1_000_000_000,
+}
 _NUM_WORD_ALT = "|".join(sorted({*_NUM_WORDS, *_NUM_SCALES}, key=len, reverse=True))
 
 _PCT_RE = re.compile(r"([+-]?\d+(?:\.\d+)?)\s*(?:%|\bpercent\b)")
 # Only a phrase built entirely from recognized number/scale words is captured --
 # deliberately not a generic "any words before percent" grab, which would swallow
 # unrelated leading words (e.g. "up" in "bump ... up five percent").
-_SPELLED_PCT_RE = re.compile(rf"\b((?:{_NUM_WORD_ALT})(?:[ -](?:{_NUM_WORD_ALT}))*)\s+percent\b", re.I)
+_SPELLED_PCT_RE = re.compile(
+    rf"\b((?:{_NUM_WORD_ALT})(?:[ -](?:{_NUM_WORD_ALT}))*)\s+percent\b", re.I
+)
 _SPELLED_MONEY_RE = re.compile(
-    rf"^((?:{_NUM_WORD_ALT})(?:[ -](?:{_NUM_WORD_ALT}))*)\s*(rand|rands|dollars?|zar|usd)?\s*\.?\s*$", re.I
+    rf"^((?:{_NUM_WORD_ALT})(?:[ -](?:{_NUM_WORD_ALT}))*)\s*(rand|rands|dollars?|zar|usd)?\s*\.?\s*$",
+    re.I,
 )
 _DAYS_RANGE_RE = re.compile(r"\b(\d+)\s*(?:to|->|→)\s*(\d+)\s*days?\b")
 _DAYS_TO_RE = re.compile(r"\bto\s+(\d+)\s*days?\b")
@@ -202,7 +257,15 @@ _RANGE_RE = re.compile(
     re.I | re.S,
 )
 _SCENARIO_SPLIT_RE = re.compile(r"([A-Za-z][A-Za-z ]{0,24}?)\s+scenario\s*:\s*", re.I)
-_NO_CHANGE_BODY = {"no change", "no changes", "none", "base", "unchanged", "the base case", "base case"}
+_NO_CHANGE_BODY = {
+    "no change",
+    "no changes",
+    "none",
+    "base",
+    "unchanged",
+    "the base case",
+    "base case",
+}
 
 
 def _strip_thousands(text: str) -> str:
@@ -287,11 +350,21 @@ def _parse_clause(clause: str) -> tuple[dict[str, Any] | None, str | None]:
 
     m = _DAYS_RANGE_RE.search(low)
     if m:
-        return {"operation": "set", "target": target, "value": _amount(m.group(2)), "unit": "days"}, None
+        return {
+            "operation": "set",
+            "target": target,
+            "value": _amount(m.group(2)),
+            "unit": "days",
+        }, None
 
     m = _DAYS_TO_RE.search(low)
     if m:
-        return {"operation": "set", "target": target, "value": _amount(m.group(1)), "unit": "days"}, None
+        return {
+            "operation": "set",
+            "target": target,
+            "value": _amount(m.group(1)),
+            "unit": "days",
+        }, None
 
     # "set/reduce/... TARGET to N%" is an absolute set to that percentage level
     # (new = value), not a relative_change -- must be checked before the generic
@@ -301,7 +374,12 @@ def _parse_clause(clause: str) -> tuple[dict[str, Any] | None, str | None]:
         pct = _PCT_RE.match(m_to.group(1).strip())
         if pct and kind == "percentage":
             return (
-                {"operation": "set", "target": target, "value": _amount(pct.group(1)) / 100.0, "unit": "percentage"},
+                {
+                    "operation": "set",
+                    "target": target,
+                    "value": _amount(pct.group(1)) / 100.0,
+                    "unit": "percentage",
+                },
                 None,
             )
         if pct:
@@ -333,7 +411,11 @@ def _parse_clause(clause: str) -> tuple[dict[str, Any] | None, str | None]:
         if amt_match and amt_match.group(2):
             amt = _amount(amt_match.group(2))
             sign = -1.0 if _direction_sign(low) < 0 else 1.0
-            op: dict[str, Any] = {"operation": "absolute_change", "target": target, "value": sign * amt}
+            op: dict[str, Any] = {
+                "operation": "absolute_change",
+                "target": target,
+                "value": sign * amt,
+            }
             ccy = _currency(amt_match.group(1), amt_match.group(3))
             if ccy:
                 op["currency"] = ccy
@@ -369,8 +451,14 @@ def _parse_clause(clause: str) -> tuple[dict[str, Any] | None, str | None]:
     return None, "target_no_value"
 
 
-def _envelope(status: str, *, operations: list[dict[str, Any]] | None = None, reason: str | None = None) -> dict[str, Any]:
-    env: dict[str, Any] = {"schema_version": SCHEMA_VERSION, "status": status, "operations": operations or []}
+def _envelope(
+    status: str, *, operations: list[dict[str, Any]] | None = None, reason: str | None = None
+) -> dict[str, Any]:
+    env: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "status": status,
+        "operations": operations or [],
+    }
     if reason is not None:
         env["reason"] = reason
     return env
@@ -430,7 +518,10 @@ def compile_intent(text: str) -> dict[str, Any]:
 
     low = text.lower()
     if _is_unsupported(low):
-        return _envelope("unsupported", reason=f"request cannot be represented as a FinIR model mutation: {text!r}")
+        return _envelope(
+            "unsupported",
+            reason=f"request cannot be represented as a FinIR model mutation: {text!r}",
+        )
 
     range_match = _RANGE_RE.search(_strip_thousands(low))
     if range_match:
@@ -464,7 +555,9 @@ def compile_intent(text: str) -> dict[str, Any]:
                 "ambiguous",
                 reason="a financial target was identified but no quantitative change was specified",
             )
-        return _envelope("ambiguous", reason="no financial target or quantitative change was identified")
+        return _envelope(
+            "ambiguous", reason="no financial target or quantitative change was identified"
+        )
 
     targets = [o["target"] for o in ops]
     if len(targets) != len(set(targets)):

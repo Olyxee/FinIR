@@ -33,7 +33,9 @@ def test_valid_relative_change_executes_against_the_real_runtime() -> None:
 
 def test_valid_multi_operation_executes_simultaneously() -> None:
     model = build_reference_model()
-    envelope = compile_intent("Revenue falls 8%, COGS rises 3%, and extend payment terms to 60 days.")
+    envelope = compile_intent(
+        "Revenue falls 8%, COGS rises 3%, and extend payment terms to 60 days."
+    )
     execution = execute_intent(model, envelope)
     assert execution.status == "valid"
     assert execution.result is not None
