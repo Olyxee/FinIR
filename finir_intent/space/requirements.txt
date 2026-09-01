@@ -1,3 +1,13 @@
-finir>=0.1.0,<0.2.0
+# Installed straight from GitHub -- neither `finir` nor `finir-intent` is on PyPI
+# yet, but Hugging Face Spaces supports pip's VCS install syntax directly in
+# requirements.txt, so no PyPI publish or bundled source copy is required to
+# launch. Both lines are pinned to the same commit (a monorepo) so the two
+# packages can never drift apart.
+#
+# IMPORTANT: update the commit SHA below after the PR merges to main (pin to the
+# merge commit, or to a release tag once one exists -- see docs/pypi-release.md in
+# the core repo for migrating to a real PyPI pin later).
+git+https://github.com/Olyxee/FinIR.git@36dec422b513cd9063bfdc51b492be8bac2b3668
+git+https://github.com/Olyxee/FinIR.git@36dec422b513cd9063bfdc51b492be8bac2b3668#subdirectory=finir_intent
 gradio>=4.0
 jsonschema>=4.21
