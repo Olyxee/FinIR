@@ -1,0 +1,1194 @@
+{
+  "metrics": {
+    "n_examples": 49,
+    "schema_validity_rate": 1.0,
+    "status_accuracy": 1.0,
+    "operation_accuracy": 1.0,
+    "target_accuracy": 1.0,
+    "value_accuracy": 0.9773,
+    "unit_accuracy": 1.0,
+    "currency_accuracy_extra": 1.0,
+    "ambiguity_handling": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 14,
+      "fp": 0,
+      "fn": 0,
+      "tn": 35
+    },
+    "multi_operation_accuracy": 1.0,
+    "status_confusion_matrix": {
+      "ambiguous->ambiguous": 7,
+      "unsupported->unsupported": 7,
+      "valid->valid": 35
+    },
+    "by_difficulty": {
+      "core": {
+        "n_examples": 48,
+        "status_accuracy": 1.0,
+        "schema_validity_rate": 1.0
+      },
+      "stress": {
+        "n_examples": 1,
+        "status_accuracy": 1.0,
+        "schema_validity_rate": 1.0
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "canon_relative_change",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Increase COGS by 4%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "cogs",
+            "value": 0.04
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "canon_absolute_change",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Increase opex by R5,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "opex",
+            "value": 5000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "canon_set_days",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Extend payment terms to 60 days.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "set",
+            "target": "payment_terms",
+            "value": 60.0,
+            "unit": "days"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "canon_multi_operation",
+      "category": "multi_operation",
+      "difficulty": "core",
+      "text": "Revenue falls 8%, COGS rises 3%, and extend payment terms to 60 days.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "revenue",
+            "value": -0.08
+          },
+          {
+            "operation": "relative_change",
+            "target": "cogs",
+            "value": 0.03
+          },
+          {
+            "operation": "set",
+            "target": "payment_terms",
+            "value": 60.0,
+            "unit": "days"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "canon_scenario",
+      "category": "scenario",
+      "difficulty": "core",
+      "text": "Model three scenarios: Base scenario: no changes. Upside scenario: revenue grows 10%. Downside scenario: revenue falls 8% and COGS rises 5%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "scenarios": [
+          {
+            "name": "base",
+            "operations": []
+          },
+          {
+            "name": "upside",
+            "operations": [
+              {
+                "operation": "relative_change",
+                "target": "revenue",
+                "value": 0.1
+              }
+            ]
+          },
+          {
+            "name": "downside",
+            "operations": [
+              {
+                "operation": "relative_change",
+                "target": "revenue",
+                "value": -0.08
+              },
+              {
+                "operation": "relative_change",
+                "target": "cogs",
+                "value": 0.05
+              }
+            ]
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "canon_ambiguous",
+      "category": "ambiguous",
+      "difficulty": "core",
+      "text": "Improve margins next year.",
+      "expected_status": "ambiguous",
+      "predicted_status": "ambiguous",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "ambiguous",
+        "operations": [],
+        "reason": "no financial target or quantitative change was identified"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "canon_unsupported",
+      "category": "unsupported",
+      "difficulty": "core",
+      "text": "Acquire our largest competitor.",
+      "expected_status": "unsupported",
+      "predicted_status": "unsupported",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "unsupported",
+        "operations": [],
+        "reason": "request cannot be represented as a FinIR model mutation: 'Acquire our largest competitor.'"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "canon_invalid_currency",
+      "category": "invalid",
+      "difficulty": "core",
+      "text": "Increase revenue by USD 2,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "revenue",
+            "value": 2000000.0,
+            "currency": "USD"
+          }
+        ]
+      },
+      "execution": "semantically_rejected"
+    },
+    {
+      "id": "canon_invalid_type",
+      "category": "invalid",
+      "difficulty": "core",
+      "text": "Set COGS to 60 days.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "set",
+            "target": "cogs",
+            "value": 60.0,
+            "unit": "days"
+          }
+        ]
+      },
+      "execution": "semantically_rejected"
+    },
+    {
+      "id": "valid_revenue_relative",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Increase revenue by 6%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "revenue",
+            "value": 0.06
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_revenue_set",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Set revenue to R550,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "set",
+            "target": "revenue",
+            "value": 550000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_cogs_absolute",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Reduce COGS by R15,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "cogs",
+            "value": -15000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_price_relative",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Cut price by 5%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "price",
+            "value": -0.05
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_volume_relative",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Increase volume by 10%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "volume",
+            "value": 0.1
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_payment_terms_range_phrasing",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Payment terms move from 30 to 60 days.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "set",
+            "target": "payment_terms",
+            "value": 60.0,
+            "unit": "days"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_accounts_payable_absolute",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Change accounts payable by R2,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "accounts_payable",
+            "value": 2000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_inventory_relative",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Reduce inventory by 15%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "inventory",
+            "value": -0.15
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_capex_absolute",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Increase capex by R10,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "capex",
+            "value": 10000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_debt_absolute",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Reduce debt by R20,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "debt",
+            "value": -20000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_interest_rate_set",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Set the interest rate to 8%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "set",
+            "target": "interest_rate",
+            "value": 0.08,
+            "unit": "percentage"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "valid_cash_absolute",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Increase cash by R5,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "cash",
+            "value": 5000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "multi_brief_example",
+      "category": "multi_operation",
+      "difficulty": "core",
+      "text": "What happens if COGS rises by 6% and customer payment terms move from 30 to 60 days?",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "cogs",
+            "value": 0.06
+          },
+          {
+            "operation": "set",
+            "target": "payment_terms",
+            "value": 60.0,
+            "unit": "days"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "multi_three_targets",
+      "category": "multi_operation",
+      "difficulty": "core",
+      "text": "Revenue grows 5%, opex falls 4%, and cash increases by R3,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "revenue",
+            "value": 0.05
+          },
+          {
+            "operation": "relative_change",
+            "target": "opex",
+            "value": -0.04
+          },
+          {
+            "operation": "absolute_change",
+            "target": "cash",
+            "value": 3000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "multi_capex_debt",
+      "category": "multi_operation",
+      "difficulty": "core",
+      "text": "Increase capex by R8,000,000 and reduce debt by R12,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "capex",
+            "value": 8000000.0,
+            "currency": "ZAR"
+          },
+          {
+            "operation": "absolute_change",
+            "target": "debt",
+            "value": -12000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "ambiguous_sales_vague",
+      "category": "ambiguous",
+      "difficulty": "core",
+      "text": "Sales should grow significantly.",
+      "expected_status": "ambiguous",
+      "predicted_status": "ambiguous",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "ambiguous",
+        "operations": [],
+        "reason": "a financial target was identified but no quantitative change was specified"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "ambiguous_costs_vague",
+      "category": "ambiguous",
+      "difficulty": "core",
+      "text": "Reduce costs a little.",
+      "expected_status": "ambiguous",
+      "predicted_status": "ambiguous",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "ambiguous",
+        "operations": [],
+        "reason": "no financial target or quantitative change was identified"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "ambiguous_ebitda_vague",
+      "category": "ambiguous",
+      "difficulty": "core",
+      "text": "Make EBITDA better.",
+      "expected_status": "ambiguous",
+      "predicted_status": "ambiguous",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "ambiguous",
+        "operations": [],
+        "reason": "no financial target or quantitative change was identified"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "ambiguous_no_target",
+      "category": "ambiguous",
+      "difficulty": "core",
+      "text": "Let's make the business healthier this year.",
+      "expected_status": "ambiguous",
+      "predicted_status": "ambiguous",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "ambiguous",
+        "operations": [],
+        "reason": "no financial target or quantitative change was identified"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "ambiguous_duplicate_targets",
+      "category": "ambiguous",
+      "difficulty": "core",
+      "text": "Increase revenue by 5% and also cut revenue by 10%.",
+      "expected_status": "ambiguous",
+      "predicted_status": "ambiguous",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "ambiguous",
+        "operations": [],
+        "reason": "conflicting operations on the same target were requested; cannot resolve unambiguously"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "unsupported_ipo",
+      "category": "unsupported",
+      "difficulty": "core",
+      "text": "Take the company public with an IPO next year.",
+      "expected_status": "unsupported",
+      "predicted_status": "unsupported",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "unsupported",
+        "operations": [],
+        "reason": "request cannot be represented as a FinIR model mutation: 'Take the company public with an IPO next year.'"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "unsupported_layoff",
+      "category": "unsupported",
+      "difficulty": "core",
+      "text": "Lay off half of the sales team.",
+      "expected_status": "unsupported",
+      "predicted_status": "unsupported",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "unsupported",
+        "operations": [],
+        "reason": "request cannot be represented as a FinIR model mutation: 'Lay off half of the sales team.'"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "unsupported_lawsuit",
+      "category": "unsupported",
+      "difficulty": "core",
+      "text": "We are facing a lawsuit from a former supplier.",
+      "expected_status": "unsupported",
+      "predicted_status": "unsupported",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "unsupported",
+        "operations": [],
+        "reason": "request cannot be represented as a FinIR model mutation: 'We are facing a lawsuit from a former supplier.'"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "invalid_currency_capex",
+      "category": "invalid",
+      "difficulty": "core",
+      "text": "Increase capex by USD 1,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "capex",
+            "value": 1000000.0,
+            "currency": "USD"
+          }
+        ]
+      },
+      "execution": "semantically_rejected"
+    },
+    {
+      "id": "range_cogs",
+      "category": "range",
+      "difficulty": "core",
+      "text": "Sweep COGS from 300,000,000 to 400,000,000 in 100 steps.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "range",
+            "target": "cogs",
+            "min": 300000000.0,
+            "max": 400000000.0,
+            "steps": 100
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "range_revenue",
+      "category": "range",
+      "difficulty": "core",
+      "text": "Run a range on revenue from 400,000,000 to 600,000,000 in 50 steps.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "range",
+            "target": "revenue",
+            "min": 400000000.0,
+            "max": 600000000.0,
+            "steps": 50
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "scenario_two",
+      "category": "scenario",
+      "difficulty": "core",
+      "text": "Base scenario: no changes. Stress scenario: cogs rises 12% and opex rises 6%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "scenarios": [
+          {
+            "name": "base",
+            "operations": []
+          },
+          {
+            "name": "stress",
+            "operations": [
+              {
+                "operation": "relative_change",
+                "target": "cogs",
+                "value": 0.12
+              },
+              {
+                "operation": "relative_change",
+                "target": "opex",
+                "value": 0.06
+              }
+            ]
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "spelled_out_percent",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Bump top line up five percent.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "revenue",
+            "value": 0.05
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "stress_wrong_direction_verb",
+      "category": "valid_simple",
+      "difficulty": "stress",
+      "text": "We'd like to trim cogs by roughly 4 percent.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "cogs",
+            "value": 0.04
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "unlisted_alias_supplier_invoices",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Our supplier invoices should be paid down by R1,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "accounts_payable",
+            "value": -1000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "range_explore_between_points",
+      "category": "range",
+      "difficulty": "core",
+      "text": "Explore COGS between 300,000,000 and 400,000,000 across 100 points.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "range",
+            "target": "cogs",
+            "min": 300000000.0,
+            "max": 400000000.0,
+            "steps": 100
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "spelled_out_money_rand",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Increase opex by five million rand.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "opex",
+            "value": 5000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "regression_direction_word_inside_supplier",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Reduce supplier costs by 10%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "cogs",
+            "value": -0.1
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "regression_direction_word_inside_group",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "Decrease cogs for this group by 4%.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "relative_change",
+            "target": "cogs",
+            "value": -0.04
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "regression_unsupported_word_inside_emergency",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "This is an emergent risk; increase cash by R1,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "cash",
+            "value": 1000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "regression_unsupported_word_inside_issue",
+      "category": "valid_simple",
+      "difficulty": "core",
+      "text": "We have a cash flow issue and need to increase cash by R2,000,000.",
+      "expected_status": "valid",
+      "predicted_status": "valid",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [
+          {
+            "operation": "absolute_change",
+            "target": "cash",
+            "value": 2000000.0,
+            "currency": "ZAR"
+          }
+        ]
+      },
+      "execution": "executed"
+    },
+    {
+      "id": "regression_unsupported_bankruptcy_inflection",
+      "category": "unsupported",
+      "difficulty": "core",
+      "text": "The company filed for bankruptcy.",
+      "expected_status": "unsupported",
+      "predicted_status": "unsupported",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "unsupported",
+        "operations": [],
+        "reason": "request cannot be represented as a FinIR model mutation: 'The company filed for bankruptcy.'"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "regression_unsupported_hiring_inflection",
+      "category": "unsupported",
+      "difficulty": "core",
+      "text": "We are hiring new staff and increasing opex by 5%.",
+      "expected_status": "unsupported",
+      "predicted_status": "unsupported",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "unsupported",
+        "operations": [],
+        "reason": "request cannot be represented as a FinIR model mutation: 'We are hiring new staff and increasing opex by 5%.'"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "regression_unsupported_sued_inflection",
+      "category": "unsupported",
+      "difficulty": "core",
+      "text": "We are being sued by a former supplier.",
+      "expected_status": "unsupported",
+      "predicted_status": "unsupported",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "unsupported",
+        "operations": [],
+        "reason": "request cannot be represented as a FinIR model mutation: 'We are being sued by a former supplier.'"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    },
+    {
+      "id": "regression_set_to_percent_non_percentage_target",
+      "category": "ambiguous",
+      "difficulty": "core",
+      "text": "Set opex to 45%.",
+      "expected_status": "ambiguous",
+      "predicted_status": "ambiguous",
+      "status_ok": true,
+      "schema_valid": true,
+      "schema_errors": [],
+      "predicted": {
+        "schema_version": "1.0",
+        "status": "ambiguous",
+        "operations": [],
+        "reason": "a financial target was identified but no quantitative change was specified"
+      },
+      "execution": "correctly_refused_nonvalid_status"
+    }
+  ]
+}
