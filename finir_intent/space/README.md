@@ -30,11 +30,20 @@ Ambiguous or unsupported instructions are refused, not guessed -- see
 
 ## Packaging note
 
-`app.py` imports `finir_intent` from the sibling `../src` directory rather than
-from PyPI, since this package is not yet published (see the workstream
-`README.md` "Packaging note"). To deploy this as a real Hugging Face Space, either:
+Neither `finir` nor `finir-intent` is on PyPI yet. `requirements.txt` installs both
+directly from GitHub (pip's VCS install syntax, which Hugging Face Spaces supports
+natively) rather than waiting on a PyPI publish -- pinned to a commit SHA for
+reproducibility, since it's a monorepo and both packages must stay in sync.
+Verified end-to-end from a clean virtualenv (no local `sys.path` tricks, no bundled
+source): `pip install -r requirements.txt` then running this Space's `app.py`
+executes real instructions against the real FinIR runtime.
 
-- publish `finir-intent` to PyPI and add it to `requirements.txt`, or
-- copy `src/finir_intent/` into this directory before pushing to the Space repo.
+**Update the commit SHA in `requirements.txt`** after the PR merges to `main` (pin
+to the merge commit, or to a release tag once one exists). `app.py`'s local
+`sys.path` fallback still exists for running this Space straight out of a repo
+checkout during development; it is never used once the package installs normally
+from `requirements.txt`, as on Hugging Face.
 
-This is a packaging/deployment detail for after local review, not a code change.
+Once `finir`/`finir-intent` are published to PyPI (see `docs/pypi-release.md` in
+the core repo), swap these two lines for version-pinned PyPI requirements as the
+more conventional long-term path -- not required for launch.
