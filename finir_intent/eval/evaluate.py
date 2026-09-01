@@ -73,7 +73,9 @@ def _flatten_ops(intent: dict[str, Any]) -> dict[tuple[str | None, str], dict[st
 def _values_match(a: dict[str, Any], b: dict[str, Any]) -> bool:
     if a.get("operation") == "range":
         return all(
-            a.get(f) is not None and b.get(f) is not None and math.isclose(a[f], b[f], rel_tol=_TOL, abs_tol=_TOL)
+            a.get(f) is not None
+            and b.get(f) is not None
+            and math.isclose(a[f], b[f], rel_tol=_TOL, abs_tol=_TOL)
             for f in ("min", "max")
         ) and a.get("steps") == b.get("steps")
     av, bv = a.get("value"), b.get("value")
@@ -150,9 +152,15 @@ def evaluate(examples: list[dict[str, Any]], *, verbose: bool = False) -> dict[s
         is_multi = ex.get("category") == "multi_operation"
         if is_multi:
             multi_op_examples += 1
-            exact = status_ok and pred_flat.keys() == exp_flat.keys() and example_op_correct == len(exp_flat) and all(
-                _values_match(exp_flat[k], pred_flat[k]) and exp_flat[k].get("unit") == pred_flat[k].get("unit")
-                for k in exp_flat
+            exact = (
+                status_ok
+                and pred_flat.keys() == exp_flat.keys()
+                and example_op_correct == len(exp_flat)
+                and all(
+                    _values_match(exp_flat[k], pred_flat[k])
+                    and exp_flat[k].get("unit") == pred_flat[k].get("unit")
+                    for k in exp_flat
+                )
             )
             multi_op_exact += int(exact)
 
@@ -164,7 +172,11 @@ def evaluate(examples: list[dict[str, Any]], *, verbose: bool = False) -> dict[s
                 FinIRIntent.from_obj(predicted)  # structural re-check via the core Python types
                 if predicted["status"] == "valid":
                     execute_intent(ref_model, predicted)
-                    exec_note = "executed" if not expects_semantic_reject else "executed_but_expected_semantic_reject"
+                    exec_note = (
+                        "executed"
+                        if not expects_semantic_reject
+                        else "executed_but_expected_semantic_reject"
+                    )
                 else:
                     try:
                         execute_intent(ref_model, predicted)
@@ -172,7 +184,11 @@ def evaluate(examples: list[dict[str, Any]], *, verbose: bool = False) -> dict[s
                     except IntentValidationError:
                         exec_note = "correctly_refused_nonvalid_status"
             except IntentValidationError as exc:
-                exec_note = "semantically_rejected" if expects_semantic_reject else f"unexpected_reject: {exc}"
+                exec_note = (
+                    "semantically_rejected"
+                    if expects_semantic_reject
+                    else f"unexpected_reject: {exc}"
+                )
 
         per_example.append(
             {
@@ -225,7 +241,9 @@ def evaluate(examples: list[dict[str, Any]], *, verbose: bool = False) -> dict[s
             "tn": ambiguity_tn,
         },
         "multi_operation_accuracy": _pct(multi_op_exact, multi_op_examples),
-        "status_confusion_matrix": {f"{exp}->{pred}": c for (exp, pred), c in sorted(status_confusion.items())},
+        "status_confusion_matrix": {
+            f"{exp}->{pred}": c for (exp, pred), c in sorted(status_confusion.items())
+        },
     }
 
     # Break out core vs. stress (paraphrase / known-limitation) subsets for honesty.
@@ -244,7 +262,10 @@ def evaluate(examples: list[dict[str, Any]], *, verbose: bool = False) -> dict[s
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--dataset", default=str(WORKSTREAM_ROOT / "intentbench" / "examples" / "intentbench_v1.jsonl"))
+    parser.add_argument(
+        "--dataset",
+        default=str(WORKSTREAM_ROOT / "intentbench" / "examples" / "intentbench_v1.jsonl"),
+    )
     parser.add_argument("--out", default=str(HERE / "results" / "latest.json"))
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()

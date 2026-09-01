@@ -101,7 +101,9 @@ def run(text: str) -> tuple[str, str, str]:
     if execution.scenario_results is not None:
         lines = ["| scenario | ebitda | gross_margin |", "|---|---|---|"]
         for name, result in execution.scenario_results.items():
-            lines.append(f"| {name} | R{float(result['ebitda']):,.0f} | {float(result['gross_margin']):.3f} |")
+            lines.append(
+                f"| {name} | R{float(result['ebitda']):,.0f} | {float(result['gross_margin']):.3f} |"
+            )
         result_md = "\n".join(lines)
     else:
         r = execution.result
@@ -149,7 +151,9 @@ with gr.Blocks(title="FinIR-Intent", analytics_enabled=False) as demo:
         "refused rather than guessed."
     )
     with gr.Row():
-        inp = gr.Textbox(label="Financial instruction", placeholder="e.g. Increase COGS by 4%.", lines=2)
+        inp = gr.Textbox(
+            label="Financial instruction", placeholder="e.g. Increase COGS by 4%.", lines=2
+        )
     run_btn = gr.Button("Compile & execute", variant="primary")
     gr.Examples(examples=_EXAMPLES, inputs=inp)
     with gr.Row():

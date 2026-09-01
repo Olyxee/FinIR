@@ -64,7 +64,12 @@ def test_absolute_change_carries_currency_only_when_stated() -> None:
 
 def test_set_days() -> None:
     env = compile_intent("Extend payment terms to 60 days.")
-    assert env["operations"][0] == {"operation": "set", "target": "payment_terms", "value": 60.0, "unit": "days"}
+    assert env["operations"][0] == {
+        "operation": "set",
+        "target": "payment_terms",
+        "value": 60.0,
+        "unit": "days",
+    }
 
 
 def test_dollar_sign_is_recognized_as_usd() -> None:
@@ -83,11 +88,20 @@ def test_scenario_with_an_unparseable_body_falls_back_to_ambiguous_whole_instruc
 def test_set_percentage_is_absolute_not_relative() -> None:
     # "set X to N%" means new = N%, not a relative_change -- see docs/intent-contract.md.
     env = compile_intent("Set the interest rate to 8%.")
-    assert env["operations"][0] == {"operation": "set", "target": "interest_rate", "value": 0.08, "unit": "percentage"}
+    assert env["operations"][0] == {
+        "operation": "set",
+        "target": "interest_rate",
+        "value": 0.08,
+        "unit": "percentage",
+    }
 
 
 def test_vague_language_never_invents_a_number() -> None:
-    for text in ("Improve margins next year.", "Sales should grow significantly.", "Reduce costs a little."):
+    for text in (
+        "Improve margins next year.",
+        "Sales should grow significantly.",
+        "Reduce costs a little.",
+    ):
         env = compile_intent(text)
         assert env["status"] == "ambiguous"
         assert env["operations"] == []
@@ -162,7 +176,11 @@ def test_baseline_compiler_implements_the_core_intent_compiler_interface() -> No
 # regressions were found in review and must never come back.
 def test_direction_word_does_not_false_positive_inside_supplier() -> None:
     env = compile_intent("Reduce supplier costs by 10%.")
-    assert env["operations"][0] == {"operation": "relative_change", "target": "cogs", "value": -0.10}
+    assert env["operations"][0] == {
+        "operation": "relative_change",
+        "target": "cogs",
+        "value": -0.10,
+    }
 
 
 def test_direction_word_does_not_false_positive_inside_group() -> None:
