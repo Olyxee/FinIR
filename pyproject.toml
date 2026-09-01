@@ -4,12 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "finir"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A financial intermediate representation and incremental execution runtime for AI systems."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
 authors = [{ name = "FinIR Contributors" }]
+maintainers = [{ name = "Olyxee" }]
 keywords = [
     "financial-computation",
     "intermediate-representation",
@@ -31,24 +32,27 @@ classifiers = [
     "Typing :: Typed",
 ]
 
-# Core is intentionally tiny: NumPy is the only hard dependency (the reference and
-# vectorized CPU backends). Everything heavier is an optional extra.
+# Core stays lightweight and CPU-first: NumPy for the reference/vectorized CPU
+# backends, and Typer + Rich so the `finir` console script works out of the box
+# (they are small, pure-Python, and the CLI is a first-class part of the release).
+# Everything heavier — GPU, graph rendering, dev tooling — is an optional extra.
 dependencies = [
     "numpy>=1.26",
+    "typer>=0.12",
+    "rich>=13.7",
 ]
 
 [project.optional-dependencies]
-cli = ["typer>=0.12", "rich>=13.7"]
-gpu = ["cupy-cuda12x>=13.0"]     # optional GPU backend; never required
-viz = ["graphviz>=0.20"]          # optional SVG rendering (DOT export needs nothing)
+gpu = ["cupy-cuda12x>=13.0"]     # optional GPU backend; never required (see docs/backends.md)
+viz = ["graphviz>=0.20"]          # optional SVG rendering (DOT export itself needs nothing)
 dev = [
     "pytest>=8.1",
     "pytest-cov>=5.0",
     "ruff>=0.5",
     "mypy>=1.10",
     "pre-commit>=3.7",
-    "typer>=0.12",
-    "rich>=13.7",
+    "build>=1.2",
+    "twine>=5.0",
     "jsonschema>=4.21",
 ]
 
@@ -59,13 +63,34 @@ finir = "finir.cli.main:main"
 Homepage = "https://github.com/Olyxee/finir"
 Repository = "https://github.com/Olyxee/finir"
 Documentation = "https://github.com/Olyxee/finir/tree/main/docs"
+Changelog = "https://github.com/Olyxee/finir/blob/main/CHANGELOG.md"
 Issues = "https://github.com/Olyxee/finir/issues"
+
+# The authoritative version lives in src/finir/version.py (single source of truth).
+[tool.hatch.version]
+path = "src/finir/version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/finir"]
+# Ship the canonical intent JSON Schema as package data (loaded at runtime via
+# importlib.resources, never a repo-relative path).
+artifacts = ["src/finir/intent/*.json"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/finir", "benchmarks", "research", "docs", "examples", "README.md", "LICENSE", "CHANGELOG.md", "CITATION.cff"]
+include = [
+    "src/finir",
+    "tests",
+    "benchmarks",
+    "research",
+    "docs",
+    "examples",
+    "schemas",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "CHANGELOG.md",
+    "CITATION.cff",
+]
 
 [tool.ruff]
 line-length = 100
