@@ -23,6 +23,11 @@ Start here.
 - [extending.md](extending.md) — custom kernels, backends, templates
 - [performance.md](performance.md) — benchmarks and honest caveats
 
+## Release & packaging
+- [pypi-release.md](pypi-release.md) — how FinIR is packaged and published to PyPI (Trusted Publishing)
+- [release-checklist.md](release-checklist.md) — the reusable per-release checklist
+- [release-notes-0.1.0.md](release-notes-0.1.0.md) — v0.1.0 release notes
+
 ## Research
 - [../research/experiment_001_incremental_financial_reasoning.md](../research/experiment_001_incremental_financial_reasoning.md)
 - [../research/experiment_002_backend_dispatch.md](../research/experiment_002_backend_dispatch.md)

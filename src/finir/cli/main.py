@@ -1,7 +1,8 @@
 """The ``finir`` command-line interface.
 
-Requires the optional ``[cli]`` extra (``typer`` + ``rich``). All commands work
-offline; nothing here needs a network or a GPU.
+Typer + Rich are core dependencies, so the ``finir`` command works out of the box
+after ``pip install finir``. All commands run offline; nothing here needs a network
+or a GPU.
 """
 
 from __future__ import annotations
@@ -14,8 +15,11 @@ try:
     import typer
     from rich.console import Console
     from rich.table import Table
-except ImportError:  # pragma: no cover - optional dep
-    sys.stderr.write("The finir CLI requires the 'cli' extra: pip install 'finir[cli]'\n")
+except ImportError:  # pragma: no cover - defensive; typer/rich are core deps
+    sys.stderr.write(
+        "The finir CLI needs Typer and Rich. They ship with finir; reinstall with "
+        "'pip install --force-reinstall finir' if they are missing.\n"
+    )
     raise
 
 from ..backends.dispatch import BackendPlanner, WorkloadProfile

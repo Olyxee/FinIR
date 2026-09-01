@@ -1,42 +1,86 @@
 name: Release
 
+# Build once, then publish the SAME artifacts to (Test)PyPI and attach them to the
+# GitHub Release. Publishing uses PyPI Trusted Publishing (OIDC) — no tokens in the
+# repo. Nothing publishes on push to main; only an explicit release/dispatch does.
 on:
   release:
-    types: [published]
+    types: [published] # publish to PyPI
   workflow_dispatch:
+    inputs:
+      target:
+        description: "Where to publish the built distributions"
+        type: choice
+        default: testpypi
+        options: [testpypi, none]
 
+# Least privilege by default; jobs opt into more only where needed.
 permissions:
   contents: read
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
-    name: Build distributions
+    name: Build & verify distributions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Quality gate (lint, types, tests)
+        run: |
+          ruff check .
+          ruff format --check .
+          mypy src
+          pytest -q
       - name: Build sdist + wheel
         run: |
-          python -m pip install --upgrade pip build
+          python -m pip install build
           python -m build
-      - name: Check metadata
+      - name: Validate metadata
         run: |
-          pip install twine
+          python -m pip install twine
           twine check dist/*
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/*
+          if-no-files-found: error
 
-  publish:
-    name: Publish to PyPI
+  publish-pypi:
+    name: Publish to PyPI (Trusted Publishing)
     needs: build
-    runs-on: ubuntu-latest
-    # Only publish on an actual GitHub Release, via PyPI Trusted Publishing (OIDC).
     if: github.event_name == 'release'
-    environment: pypi
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/finir/
+    permissions:
+      id-token: write # OIDC token for Trusted Publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-testpypi:
+    name: Publish to TestPyPI (Trusted Publishing)
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.target == 'testpypi'
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/finir/
     permissions:
       id-token: write
     steps:
@@ -44,5 +88,24 @@ jobs:
         with:
           name: dist
           path: dist
-      - name: Publish
+      - name: Publish to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  attach-to-release:
+    name: Attach artifacts to the GitHub Release
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # upload assets to the release
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Upload the same wheel + sdist to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" dist/* --repo "${{ github.repository }}" --clobber
