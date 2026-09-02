@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "finir-intent"
+dynamic = ["version"]
+description = "FinIR-Intent: natural-language financial instructions to the canonical FinIR Intent Contract."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "FinIR Contributors" }]
+maintainers = [{ name = "Olyxee" }]
+keywords = ["finir", "financial-nlp", "structured-generation", "hugging-face"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial",
+]
+
+# PROVISIONAL: package name / import path (finir-intent / finir_intent) is proposed,
+# not final -- reconcile with the GitHub/PyPI packaging Lethabo is scaffolding before
+# anything is published. See the workstream README.md "Packaging" note.
+dependencies = [
+    # Compatible FinIR runtime per docs/huggingface-intent-handoff.md.
+    "finir>=0.1.0,<0.2.0",
+]
+
+[project.optional-dependencies]
+space = ["gradio>=4.0"]
+dev = [
+    "pytest>=8.1",
+    "jsonschema>=4.21",
+]
+
+[tool.hatch.version]
+path = "src/finir_intent/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/finir_intent"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests", "eval", "space"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["E501"]  # line length is owned by the formatter, matching the core finir repo
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

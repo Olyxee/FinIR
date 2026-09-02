@@ -30,6 +30,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
+          pip install -e "./finir_intent[dev]"
 
       - name: Lint (ruff)
         run: ruff check .
@@ -40,8 +41,14 @@ jobs:
       - name: Type check (mypy)
         run: mypy src
 
+      - name: Type check (mypy) - finir_intent
+        run: mypy --python-version 3.14 --ignore-missing-imports finir_intent/src/finir_intent
+
       - name: Tests
         run: pytest --cov=finir --cov-report=xml --cov-report=term
+
+      - name: Tests - finir_intent
+        run: pytest finir_intent/tests -q
 
       - name: CLI + benchmark smoke
         run: |
