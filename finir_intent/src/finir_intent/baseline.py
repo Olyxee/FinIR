@@ -125,6 +125,8 @@ _DOWN_WORDS = (
     "reduces",
     "cut",
     "cuts",
+    "trim",
+    "trims",
     "lower",
     "drop",
     "drops",

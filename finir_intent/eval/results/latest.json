@@ -5,7 +5,7 @@
     "status_accuracy": 1.0,
     "operation_accuracy": 1.0,
     "target_accuracy": 1.0,
-    "value_accuracy": 0.9773,
+    "value_accuracy": 1.0,
     "unit_accuracy": 1.0,
     "currency_accuracy_extra": 1.0,
     "ambiguity_handling": {
@@ -25,12 +25,7 @@
     },
     "by_difficulty": {
       "core": {
-        "n_examples": 48,
-        "status_accuracy": 1.0,
-        "schema_validity_rate": 1.0
-      },
-      "stress": {
-        "n_examples": 1,
+        "n_examples": 49,
         "status_accuracy": 1.0,
         "schema_validity_rate": 1.0
       }
@@ -929,9 +924,9 @@
       "execution": "executed"
     },
     {
-      "id": "stress_wrong_direction_verb",
+      "id": "direction_word_trim",
       "category": "valid_simple",
-      "difficulty": "stress",
+      "difficulty": "core",
       "text": "We'd like to trim cogs by roughly 4 percent.",
       "expected_status": "valid",
       "predicted_status": "valid",
@@ -945,7 +940,7 @@
           {
             "operation": "relative_change",
             "target": "cogs",
-            "value": 0.04
+            "value": -0.04
           }
         ]
       },

@@ -58,7 +58,7 @@ def _schema_errors(envelope: dict) -> list[str]:
 
 
 _MODEL = build_reference_model()
-_BASE = _MODEL.evaluate()
+_MODEL.evaluate()  # warm the runtime's incremental cache; result is not used here
 
 _VERSION_BANNER = (
     f"**FinIR-Intent** `{FINIR_INTENT_VERSION}` &nbsp;|&nbsp; "
