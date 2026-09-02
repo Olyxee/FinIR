@@ -268,3 +268,15 @@ def test_spelled_out_percent_does_not_reintroduce_the_set_to_percent_bug() -> No
     env = compile_intent("Set opex to five percent.")
     assert env["status"] == "ambiguous"
     assert env["operations"] == []
+
+
+def test_trim_is_recognized_as_a_down_direction_word() -> None:
+    # Previously a known limitation (fixed): "trim" was not in the down-direction
+    # word list, so the sign was predicted wrong even though target/operation
+    # were correct.
+    env = compile_intent("We'd like to trim cogs by roughly 4 percent.")
+    assert env == {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [{"operation": "relative_change", "target": "cogs", "value": -0.04}],
+    }

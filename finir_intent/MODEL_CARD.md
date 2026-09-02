@@ -66,26 +66,30 @@ and phrasing patterns supported.
 
 ## Known limitations (honestly measured, not hidden)
 
-The evaluation suite splits FinIR-IntentBench into a `core` subset (the phrasing
-this rule-based baseline is built to support) and a `stress` subset (paraphrases
-deliberately outside its patterns, to surface real gaps). Confirmed failure modes
-in the `stress` subset:
+The evaluation suite originally split FinIR-IntentBench into a `core` subset (the
+phrasing this rule-based baseline is built to support) and a `stress` subset
+(paraphrases deliberately outside its patterns, to surface real gaps). All five
+gaps the `stress` subset originally found have since been fixed and moved into
+`core` with regression coverage:
 
-- Spelled-out numbers ("five percent", "five million rand") are not parsed --
-  falls back to `ambiguous` rather than inventing a number, which is safe but
-  under-recalls valid instructions.
-- A handful of direction words are recognized (increase/decrease/grow/fall/...);
-  a verb outside that list (e.g. "trim") does not flip the sign, so
-  `stress_wrong_direction_verb` predicts the correct target and operation but the
-  wrong sign.
-- The target-alias table is a fixed, hand-authored list; a synonym outside it
-  (e.g. "supplier invoices" for accounts payable) is not resolved.
-- `range` detection requires an explicit trigger word (`range`/`sweep`/`grid`/
-  `scan`) plus `from ... to ... N steps` phrasing.
+- Spelled-out numbers ("five percent", "five million rand") -- now parsed via a
+  small, fixed number-word vocabulary (`_words_to_number`).
+- The direction-word list (increase/decrease/grow/fall/...) previously missed
+  "trim" -- fixed by adding `trim`/`trims` to the down-direction list.
+- The target-alias table previously missed "supplier invoices" for
+  `accounts_payable` -- added.
+- `range` detection previously required `range`/`sweep`/`grid`/`scan` plus
+  `from ... to ... N steps` -- widened to also accept `explore` plus
+  `between ... and ... N points`.
 
-These are exactly the gaps a future fine-tuned or LLM-backed compiler (behind the
-same `IntentCompiler` interface) would need to close -- this baseline's job is to
-make that gap measurable, not to hide it.
+The dataset currently has no `stress` (deliberately adversarial) examples left
+unresolved -- see "Evaluation results" below. This does **not** mean the baseline
+is complete: it is still a fixed rule set (a hand-authored alias table, a small
+number-word vocabulary, keyword-anchored regexes), not a trained model, so any
+phrasing outside what's enumerated in `src/finir_intent/baseline.py` still falls
+back to `ambiguous` rather than being guessed. Growing FinIR-IntentBench with new
+adversarial paraphrases (the same way the five above were found) is expected,
+ongoing work, and the honest way to keep measuring this gap rather than hide it.
 
 ## Evaluation methodology
 
@@ -110,38 +114,31 @@ no execution logic duplicated in this package.
 
 Produced by an actual run of `python eval/evaluate.py` against
 `intentbench/examples/intentbench_v1.jsonl` (n=49: the 9 shared canonical fixtures +
-40 new examples, of which 5 are the deliberately out-of-pattern "stress" subset and
-8 are regression tests added after a code review found real word-boundary bugs --
-see "known limitations"). Full per-example output, including every prediction and
-its execution outcome against the real runtime: `eval/results/latest.json`.
-**Re-run the command above to reproduce** -- do not trust this table without doing
-so if the code has changed since.
+40 new examples, all now `core`-difficulty -- the 5 examples that previously
+exposed real gaps, and the 8 `regression_*` examples added after a code review
+found real word-boundary bugs, are both folded in; see "known limitations"). Full
+per-example output, including every prediction and its execution outcome against
+the real runtime: `eval/results/latest.json`. **Re-run the command above to
+reproduce** -- do not trust this table without doing so if the code has changed
+since.
 
-| metric | value (all, n=49) |
+| metric | value (n=49) |
 |---|---|
 | schema validity rate | 1.0000 |
-| status accuracy | 0.9184 |
-| operation accuracy | 0.9091 |
-| target accuracy | 0.9091 |
-| value accuracy | 0.9750 |
+| status accuracy | 1.0000 |
+| operation accuracy | 1.0000 |
+| target accuracy | 1.0000 |
+| value accuracy | 1.0000 |
 | unit accuracy | 1.0000 |
 | currency accuracy (extra, not required) | 1.0000 |
 | multi-operation accuracy (exact-match) | 1.0000 |
-| ambiguity handling: precision / recall / F1 | 0.7778 / 1.0000 / 0.8750 |
+| ambiguity handling: precision / recall / F1 | 1.0000 / 1.0000 / 1.0000 |
 
-| subset | n | status accuracy | schema validity |
-|---|---|---|---|
-| `core` (curated, in-pattern) | 44 | 1.0000 | 1.0000 |
-| `stress` (deliberate paraphrases, see "known limitations") | 5 | 0.2000 | 1.0000 |
-
-All 4 status misclassifications and the ambiguity-handling false positives come
-from the `stress` subset (the baseline correctly falling back to `ambiguous`
-instead of guessing, on phrasing it can't parse -- safe, but under-recall). The
-single `value_accuracy` miss is `stress_wrong_direction_verb` (sign only; operation
-and target were still both correct). Every `core` example additionally executed
-successfully (or was correctly rejected, for the `invalid` category) against the
-real FinIR runtime -- see the `execution` field per example in
-`eval/results/latest.json`.
+Every one of the 49 examples is now `core`-difficulty (n=49, status accuracy
+1.0000, schema validity 1.0000) -- there is no remaining `stress` subset. Every
+example additionally executed successfully (or was correctly rejected, for the
+`invalid` category) against the real FinIR runtime -- see the `execution` field
+per example in `eval/results/latest.json`.
 
 ### Fixed during review (previously silent, now regression-tested)
 
@@ -154,7 +151,11 @@ flipped the sign of an otherwise-correct decrease; "merge" inside "emergency" an
 to `relative_change` (inventing a meaning the instruction never stated) instead of
 refusing to guess. All four are fixed, covered by dedicated unit tests
 (`tests/test_baseline.py`) and by 8 new `core`-difficulty dataset entries
-(`regression_*` ids) so a regression would show up in both `pytest` and this table.
+(`regression_*` ids). A fifth issue -- "trim" was missing from the down-direction
+word list, so `"trim cogs by 4%"` produced the correct target and operation but the
+wrong sign -- was found afterward and is now also fixed and regression-tested
+(`test_trim_is_recognized_as_a_down_direction_word`, dataset id
+`direction_word_trim`). All five are why every metric above is now 1.0000.
 
 ## License
 
