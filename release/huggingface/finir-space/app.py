@@ -43,6 +43,20 @@ except ImportError:
     from finir_intent._version import FINIR_RUNTIME_COMPATIBLE
     from finir_intent._version import __version__ as FINIR_INTENT_VERSION
 
+# Hugging Face ZeroGPU (this Space's free hardware tier) requires at least one
+# `@spaces.GPU`-decorated function to be registered at startup. This demo's compute is
+# CPU-only (finir's default NumPy backend) and `run()` takes/returns plain strings, so
+# wrapping it is safe and cheap. The `spaces` package only exists on ZeroGPU Spaces, so
+# the import is guarded; locally (and on CPU hardware) `_gpu` is a transparent no-op and
+# no GPU is ever requested.
+try:
+    from spaces import GPU as _gpu  # type: ignore[import-not-found]
+except Exception:  # not on a ZeroGPU Space (local dev / CI / CPU hardware)
+
+    def _gpu(fn=None, **_):
+        return fn if callable(fn) else (lambda f: f)
+
+
 _SCHEMA_VALIDATOR = None  # lazily built (jsonschema is optional at Space runtime)
 
 
@@ -74,6 +88,7 @@ volume -- all ZAR except where noted. See `src/finir_intent/reference_model.py`.
 """
 
 
+@_gpu
 def run(text: str) -> tuple[str, str, str]:
     if not text or not text.strip():
         return "", "", "Enter a natural-language financial instruction above."

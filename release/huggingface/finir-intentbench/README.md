@@ -6,7 +6,7 @@ tags:
   - structured-generation
   - finir
 task_categories:
-  - text2text-generation
+  - text-generation
 pretty_name: FinIR-IntentBench
 configs:
   - config_name: default
