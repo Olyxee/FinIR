@@ -3,14 +3,12 @@
 finir==0.1.0
 
 # FinIR-Intent (this workstream) is not on PyPI yet, so it is installed from GitHub
-# (pip's VCS syntax, supported natively by Hugging Face Spaces). Pinned to a commit
-# for reproducibility.
+# (pip's VCS syntax, supported natively by Hugging Face Spaces). Pinned to the exact
+# commit carrying the v0.1.0 release-readiness baseline for reproducibility.
 #
-# PUBLISH-TIME NOTE: bump the SHA below to the commit that lands the v0.1.0 readiness
-# work (the parser + benchmark updates in this directory) before deploying the Space,
-# so the demo reflects the latest baseline. Once `finir-intent` is published to PyPI,
-# replace this whole line with `finir-intent==0.1.0`.
-git+https://github.com/Olyxee/finir.git@8232480efdad488780c305fddbc544c77123311b#subdirectory=finir_intent
+# Once `finir-intent` is published to PyPI, replace this line with
+# `finir-intent==0.1.0`.
+git+https://github.com/Olyxee/finir.git@f9ec68e6b9077075edd3c53c96560cbb73bcedfb#subdirectory=finir_intent
 
 gradio>=4.0
 jsonschema>=4.21
