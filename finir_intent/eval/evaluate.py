@@ -33,7 +33,7 @@ WORKSTREAM_ROOT = HERE.parent
 CORE_FIXTURES = WORKSTREAM_ROOT.parent / "tests" / "fixtures" / "intents"
 
 sys.path.insert(0, str(WORKSTREAM_ROOT / "src"))
-from finir_intent import build_reference_model, compile_intent  # noqa: E402
+from finir_intent import build_reference_model, compile_intent  # type: ignore[attr-defined]  # noqa: E402, I001
 
 _TOL = 1e-9
 
@@ -84,6 +84,68 @@ def _values_match(a: dict[str, Any], b: dict[str, Any]) -> bool:
     return math.isclose(av, bv, rel_tol=_TOL, abs_tol=_TOL)
 
 
+def _pct(n: int, d: int) -> float | None:
+    return round(n / d, 4) if d else None
+
+
+def _aggregate(records: list[dict[str, Any]]) -> dict[str, Any]:
+    """Compute the full metric suite over any subset of per-example records.
+
+    Every op-level count is carried on the record itself, so overall / core / stress
+    are scored by exactly the same code path -- no metric can drift between subsets.
+    """
+    n = len(records)
+    op_total = sum(r["op_total"] for r in records)
+    op_correct = sum(r["op_correct"] for r in records)
+    target_correct = sum(r["target_correct"] for r in records)
+    value_total = sum(r["value_total"] for r in records)
+    value_correct = sum(r["value_correct"] for r in records)
+    unit_correct = sum(r["unit_correct"] for r in records)
+    currency_correct = sum(r["currency_correct"] for r in records)
+
+    tp = sum(1 for r in records if r["exp_nonexec"] and r["pred_nonexec"])
+    fp = sum(1 for r in records if not r["exp_nonexec"] and r["pred_nonexec"])
+    fn = sum(1 for r in records if r["exp_nonexec"] and not r["pred_nonexec"])
+    tn = sum(1 for r in records if not r["exp_nonexec"] and not r["pred_nonexec"])
+    precision = _pct(tp, tp + fp)
+    recall = _pct(tp, tp + fn)
+    # 0.0 precision/recall are valid values, not "missing": test `is not None`.
+    f1 = None
+    if precision is not None and recall is not None and (precision + recall) > 0:
+        f1 = round(2 * precision * recall / (precision + recall), 4)
+
+    multi = [r for r in records if r["category"] == "multi_operation"]
+    scenario = [r for r in records if r["category"] == "scenario"]
+    executable = [r for r in records if r["exec_executable"]]
+    exec_ok = [r for r in executable if r["exec_note"] == "executed"]
+    sem = [r for r in records if r["expects_semantic_reject"]]
+    sem_ok = [r for r in sem if r["exec_note"] == "semantically_rejected"]
+
+    return {
+        "n_examples": n,
+        "schema_validity_rate": _pct(sum(r["schema_valid"] for r in records), n),
+        "status_accuracy": _pct(sum(r["status_ok"] for r in records), n),
+        "operation_accuracy": _pct(op_correct, op_total),
+        "target_accuracy": _pct(target_correct, op_total),
+        "value_accuracy": _pct(value_correct, value_total),
+        "unit_accuracy": _pct(unit_correct, value_total),
+        "currency_accuracy": _pct(currency_correct, value_total),
+        "ambiguity_handling": {
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+            "tp": tp,
+            "fp": fp,
+            "fn": fn,
+            "tn": tn,
+        },
+        "multi_operation_accuracy": _pct(sum(r["exact_match"] for r in multi), len(multi)),
+        "scenario_accuracy": _pct(sum(r["exact_match"] for r in scenario), len(scenario)),
+        "runtime_execution_success_rate": _pct(len(exec_ok), len(executable)),
+        "semantic_rejection_correctness": _pct(len(sem_ok), len(sem)),
+    }
+
+
 # ---------------------------------------------------------------------------- scoring
 def evaluate(examples: list[dict[str, Any]], *, verbose: bool = False) -> dict[str, Any]:
     schema = json_schema()
@@ -93,18 +155,6 @@ def evaluate(examples: list[dict[str, Any]], *, verbose: bool = False) -> dict[s
     per_example: list[dict[str, Any]] = []
     status_confusion: Counter[tuple[str, str]] = Counter()
 
-    op_total = op_correct = 0
-    target_total = target_correct = 0
-    value_total = value_correct = 0
-    unit_total = unit_correct = 0
-    currency_total = currency_correct = 0
-
-    n_schema_valid = 0
-    multi_op_examples = 0
-    multi_op_exact = 0
-
-    ambiguity_tp = ambiguity_fp = ambiguity_fn = ambiguity_tn = 0
-
     for ex in examples:
         text = ex["text"]
         expected = ex["expected_intent"]
@@ -112,64 +162,55 @@ def evaluate(examples: list[dict[str, Any]], *, verbose: bool = False) -> dict[s
 
         schema_errors = sorted(validator.iter_errors(predicted), key=str)
         is_schema_valid = not schema_errors
-        n_schema_valid += int(is_schema_valid)
 
         status_confusion[(expected["status"], predicted["status"])] += 1
         status_ok = predicted["status"] == expected["status"]
 
         exp_nonexec = expected["status"] in ("ambiguous", "unsupported", "invalid")
         pred_nonexec = predicted["status"] in ("ambiguous", "unsupported", "invalid")
-        if exp_nonexec and pred_nonexec:
-            ambiguity_tp += 1
-        elif exp_nonexec and not pred_nonexec:
-            ambiguity_fn += 1
-        elif not exp_nonexec and pred_nonexec:
-            ambiguity_fp += 1
-        else:
-            ambiguity_tn += 1
 
         exp_flat = _flatten_ops(expected) if expected["status"] == "valid" else {}
         pred_flat = _flatten_ops(predicted) if predicted["status"] == "valid" else {}
 
-        example_op_correct = 0
+        op_total = op_correct = target_correct = 0
+        value_total = value_correct = unit_correct = currency_correct = 0
         for key, exp_op in exp_flat.items():
             op_total += 1
-            target_total += 1
             pred_op = pred_flat.get(key)
-            target_hit = pred_op is not None
-            target_correct += int(target_hit)
-            op_hit = target_hit and pred_op.get("operation") == exp_op.get("operation")
-            op_correct += int(op_hit)
-            example_op_correct += int(op_hit)
-            if op_hit:
+            if pred_op is None:
+                continue
+            target_correct += 1
+            if pred_op.get("operation") == exp_op.get("operation"):
+                op_correct += 1
                 value_total += 1
                 value_correct += int(_values_match(exp_op, pred_op))
-                unit_total += 1
                 unit_correct += int(exp_op.get("unit") == pred_op.get("unit"))
-                currency_total += 1
                 currency_correct += int(exp_op.get("currency") == pred_op.get("currency"))
 
-        is_multi = ex.get("category") == "multi_operation"
-        if is_multi:
-            multi_op_examples += 1
-            exact = (
-                status_ok
-                and pred_flat.keys() == exp_flat.keys()
-                and example_op_correct == len(exp_flat)
-                and all(
-                    _values_match(exp_flat[k], pred_flat[k])
-                    and exp_flat[k].get("unit") == pred_flat[k].get("unit")
-                    for k in exp_flat
-                )
+        # exact match (all keys present, every op/value/unit correct) -- used for
+        # both multi-operation and scenario categories.
+        exact_match = (
+            status_ok
+            and pred_flat.keys() == exp_flat.keys()
+            and op_correct == len(exp_flat)
+            and all(
+                _values_match(exp_flat[k], pred_flat[k])
+                and exp_flat[k].get("unit") == pred_flat[k].get("unit")
+                for k in exp_flat
             )
-            multi_op_exact += int(exact)
+        )
 
-        # -- end-to-end execution proof (only meaningful for schema-valid predictions)
+        expects_semantic_reject = ex.get("execution_expectation") == "semantic_reject"
+        # "executable" = a schema-valid prediction the contract marks runnable that
+        # is NOT expected to be a semantic reject (so success is the right outcome).
+        exec_executable = (
+            is_schema_valid and predicted["status"] == "valid" and not expects_semantic_reject
+        )
+
         exec_note = None
         if is_schema_valid:
-            expects_semantic_reject = ex.get("execution_expectation") == "semantic_reject"
             try:
-                FinIRIntent.from_obj(predicted)  # structural re-check via the core Python types
+                FinIRIntent.from_obj(predicted)  # structural re-check via core Python types
                 if predicted["status"] == "valid":
                     execute_intent(ref_model, predicted)
                     exec_note = (
@@ -203,61 +244,58 @@ def evaluate(examples: list[dict[str, Any]], *, verbose: bool = False) -> dict[s
                 "schema_errors": [e.message for e in schema_errors] if schema_errors else [],
                 "predicted": predicted,
                 "execution": exec_note,
+                # -- fields the aggregator consumes (subset-scored uniformly) --
+                "exp_nonexec": exp_nonexec,
+                "pred_nonexec": pred_nonexec,
+                "op_total": op_total,
+                "op_correct": op_correct,
+                "target_correct": target_correct,
+                "value_total": value_total,
+                "value_correct": value_correct,
+                "unit_correct": unit_correct,
+                "currency_correct": currency_correct,
+                "exact_match": exact_match,
+                "exec_executable": exec_executable,
+                "expects_semantic_reject": expects_semantic_reject,
+                "exec_note": exec_note,
             }
         )
         if verbose:
             mark = "OK " if status_ok else "FAIL"
             print(f"[{mark}] {ex['id']:<35} exec={exec_note}")
 
-    def _pct(n: int, d: int) -> float | None:
-        return round(n / d, 4) if d else None
-
-    precision = _pct(ambiguity_tp, ambiguity_tp + ambiguity_fp)
-    recall = _pct(ambiguity_tp, ambiguity_tp + ambiguity_fn)
-    # NOTE: precision/recall of exactly 0.0 are valid values, not "missing" -- must
-    # check `is not None`, not truthiness, or a genuine 0 gets silently misreported
-    # as an undefined F1 instead of the mathematically correct 0.0.
-    f1 = None
-    if precision is not None and recall is not None and (precision + recall) > 0:
-        f1 = round(2 * precision * recall / (precision + recall), 4)
-
-    n = len(examples)
-    metrics = {
-        "n_examples": n,
-        "schema_validity_rate": _pct(n_schema_valid, n),
-        "status_accuracy": _pct(sum(1 for e in per_example if e["status_ok"]), n),
-        "operation_accuracy": _pct(op_correct, op_total),
-        "target_accuracy": _pct(target_correct, target_total),
-        "value_accuracy": _pct(value_correct, value_total),
-        "unit_accuracy": _pct(unit_correct, unit_total),
-        "currency_accuracy_extra": _pct(currency_correct, currency_total),
-        "ambiguity_handling": {
-            "precision": precision,
-            "recall": recall,
-            "f1": f1,
-            "tp": ambiguity_tp,
-            "fp": ambiguity_fp,
-            "fn": ambiguity_fn,
-            "tn": ambiguity_tn,
-        },
-        "multi_operation_accuracy": _pct(multi_op_exact, multi_op_examples),
-        "status_confusion_matrix": {
-            f"{exp}->{pred}": c for (exp, pred), c in sorted(status_confusion.items())
-        },
+    metrics: dict[str, Any] = {"overall": _aggregate(per_example)}
+    metrics["by_difficulty"] = {
+        difficulty: _aggregate([e for e in per_example if e["difficulty"] == difficulty])
+        for difficulty in sorted({e["difficulty"] for e in per_example})
+    }
+    metrics["status_confusion_matrix"] = {
+        f"{exp}->{pred}": c for (exp, pred), c in sorted(status_confusion.items())
     }
 
-    # Break out core vs. stress (paraphrase / known-limitation) subsets for honesty.
-    by_difficulty: dict[str, Any] = {}
-    for difficulty in sorted({e["difficulty"] for e in per_example}):
-        subset = [e for e in per_example if e["difficulty"] == difficulty]
-        by_difficulty[difficulty] = {
-            "n_examples": len(subset),
-            "status_accuracy": _pct(sum(1 for e in subset if e["status_ok"]), len(subset)),
-            "schema_validity_rate": _pct(sum(1 for e in subset if e["schema_valid"]), len(subset)),
-        }
-    metrics["by_difficulty"] = by_difficulty
+    # keep the flat top-level metric keys too, for backward compatibility with any
+    # tooling / tests that read report["metrics"]["status_accuracy"] directly.
+    for k, v in metrics["overall"].items():
+        metrics.setdefault(k, v)
 
-    return {"metrics": metrics, "examples": per_example}
+    # trim the aggregator-only bookkeeping fields out of the persisted per-example list
+    _internal = {
+        "exp_nonexec",
+        "pred_nonexec",
+        "op_total",
+        "op_correct",
+        "target_correct",
+        "value_total",
+        "value_correct",
+        "unit_correct",
+        "currency_correct",
+        "exact_match",
+        "exec_executable",
+        "expects_semantic_reject",
+        "exec_note",
+    }
+    clean_examples = [{k: v for k, v in r.items() if k not in _internal} for r in per_example]
+    return {"metrics": metrics, "examples": clean_examples}
 
 
 def main() -> None:

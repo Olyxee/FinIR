@@ -46,9 +46,15 @@ python space/app.py                   # launches the local Gradio demo
   mapping (e.g. "sales" -> `revenue`) lives entirely in `baseline.py`, before the
   envelope is emitted -- exactly as `docs/intent-contract.md` requires.
 
-## Packaging note (provisional)
+## Packaging
 
-This directory is a standalone, independently installable package proposed as
-`finir-intent` / import path `finir_intent`, depending on `finir` from PyPI. The
-name and its placement in the final repo/package layout are **not final** -- Lethabo
-is scaffolding the GitHub/PyPI packaging in parallel; reconcile before publishing.
+Standalone, independently installable package `finir-intent` (import path
+`finir_intent`), depending on the published `finir` runtime from PyPI
+(`finir>=0.1.0,<0.2.0`). Versions: FinIR-Intent baseline `0.1.0`, FinIR-IntentBench
+`v1`, Intent Contract `1.0`.
+
+## Attribution
+
+The FinIR-Intent Hugging Face workstream (baseline, benchmark, evaluation, Space)
+was contributed by **Alisha Fatima** ([@AlishaFatima16](https://github.com/AlishaFatima16)).
+The core FinIR runtime and the canonical Intent Contract are maintained by Olyxee.

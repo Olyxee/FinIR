@@ -280,3 +280,56 @@ def test_trim_is_recognized_as_a_down_direction_word() -> None:
         "status": "valid",
         "operations": [{"operation": "relative_change", "target": "cogs", "value": -0.04}],
     }
+
+
+def test_trim_cogs_by_4_percent_exact_phrasing() -> None:
+    # The exact release-checklist phrasing must resolve to a -4% relative change.
+    assert compile_intent("trim cogs by 4 percent") == {
+        "schema_version": "1.0",
+        "status": "valid",
+        "operations": [{"operation": "relative_change", "target": "cogs", "value": -0.04}],
+    }
+
+
+def test_boost_is_recognized_as_an_up_direction_word() -> None:
+    # "boost" is a common finance up-verb; it must flip the sign positive.
+    env = compile_intent("Boost sales volume by 15%.")
+    assert env["operations"][0] == {
+        "operation": "relative_change",
+        "target": "volume",
+        "value": 0.15,
+    }
+
+
+def test_all_common_direction_verbs_have_correct_sign() -> None:
+    down = ["trim", "cut", "reduce", "lower", "decrease", "drop", "fall"]
+    up = ["increase", "raise", "grow", "rise", "boost"]
+    for verb in down:
+        op = compile_intent(f"{verb} cogs by 4 percent")["operations"][0]
+        assert op["value"] == -0.04, verb
+    for verb in up:
+        op = compile_intent(f"{verb} cogs by 4 percent")["operations"][0]
+        assert op["value"] == 0.04, verb
+
+
+def test_layoff_with_a_count_is_unsupported() -> None:
+    # "fire employees" with a number between the words must still be caught.
+    for text in ("Fire 100 employees.", "Cut headcount by 200.", "Lay off 50 workers."):
+        assert compile_intent(text)["status"] == "unsupported", text
+
+
+def test_going_public_phrasings_are_unsupported() -> None:
+    for text in (
+        "Take the company public.",
+        "Take the company public with an IPO next year.",
+        "The board wants to go public.",
+        "Pursue a public offering.",
+    ):
+        assert compile_intent(text)["status"] == "unsupported", text
+
+
+def test_fire_up_idiom_is_not_a_layoff_false_positive() -> None:
+    # "fire up" with no headcount noun must not be misread as a layoff.
+    env = compile_intent("Fire up the sales pipeline and increase revenue by 5%.")
+    assert env["status"] == "valid"
+    assert env["operations"][0]["target"] == "revenue"

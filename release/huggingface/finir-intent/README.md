@@ -231,3 +231,11 @@ The FinIR-Intent Hugging Face workstream (baseline, benchmark, evaluation, Space
 contributed by **Alisha Fatima** ([@AlishaFatima16](https://github.com/AlishaFatima16)).
 The core FinIR runtime and the canonical FinIR Intent Contract are maintained by
 Olyxee.
+
+
+## Links
+
+- **FinIR runtime (PyPI):** https://pypi.org/project/finir/ — `pip install finir`
+- **FinIR source (GitHub):** https://github.com/Olyxee/finir
+- **FinIR-IntentBench (dataset):** https://huggingface.co/datasets/Olyxee/FinIR-IntentBench
+- **FinIR Space (demo):** https://huggingface.co/spaces/Olyxee/FinIR-Intent-Demo
