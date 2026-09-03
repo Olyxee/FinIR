@@ -5,7 +5,20 @@ Real, executed benchmarks — no hard-coded numbers.
 ```bash
 python benchmarks/run_benchmarks.py      # writes benchmarks/results/benchmark_results.json
 finir benchmark --full                   # incremental-vs-recompute table
+python benchmarks/public_benchmark.py    # public-research-page benchmark (see below)
 ```
+
+## `public_benchmark.py` — the public research-page benchmark
+
+Benchmarks the **public PyPI `finir==0.1.0`** package specifically (it refuses to run
+against a local/editable install — see the script's own provenance check) across
+graph sizes 98–100,002 nodes, change-locality (1–100% of inputs changed at once), and
+cold/warm/small/large-update timing. Full methodology, hardware, and every measured
+point are embedded in `results/finir_public_benchmark_<date>.json` (and a flattened
+`.csv`). Uses a purpose-built synthetic graph generator (balanced pairwise-sum tree,
+not FinIR's shipped `finir.benchmark.synthetic.build_segmented_model` — see the
+script's docstring for why: the shipped generator's flat aggregate-sum expression
+hits Python's recursion limit above ~1,000 segments). No FinIR core code is modified.
 
 ## What is measured
 
