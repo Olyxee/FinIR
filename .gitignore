@@ -31,6 +31,10 @@ htmlcov/
 eif.db
 data/
 .eif/
+# ...but the FinIR-IntentBench Hugging Face export data is a real, reviewable
+# artifact, not scratch data — keep it tracked.
+!/release/huggingface/finir-intentbench/data/
+!/release/huggingface/finir-intentbench/data/**
 
 # Secrets & environment
 .env

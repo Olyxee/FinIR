@@ -42,3 +42,11 @@ the commit that lands the v0.1.0 readiness work before deploying, then — once
 `app.py`'s local `sys.path` fallback exists only for running this Space straight out
 of a repo checkout during development; it is never used once the package installs
 normally from `requirements.txt`, as on Hugging Face.
+
+
+## Links
+
+- **FinIR runtime (PyPI):** https://pypi.org/project/finir/
+- **FinIR source (GitHub):** https://github.com/Olyxee/finir
+- **FinIR-Intent (model/baseline):** https://huggingface.co/Olyxee/FinIR-Intent
+- **FinIR-IntentBench (dataset):** https://huggingface.co/datasets/Olyxee/FinIR-IntentBench

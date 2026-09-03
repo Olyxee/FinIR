@@ -8,6 +8,14 @@ tags:
 task_categories:
   - text2text-generation
 pretty_name: FinIR-IntentBench
+configs:
+  - config_name: default
+    data_files:
+      - split: core
+        path: data/core.jsonl
+      - split: stress
+        path: data/stress.jsonl
+
 ---
 
 # Dataset Card: FinIR-IntentBench v1
@@ -137,3 +145,15 @@ Apache-2.0, matching the core FinIR repository. FinIR-IntentBench was contribute
 **Alisha Fatima** ([@AlishaFatima16](https://github.com/AlishaFatima16)) as part of
 the FinIR-Intent Hugging Face workstream; the canonical contract it targets is
 maintained by Olyxee.
+
+## Files
+
+- `data/intentbench_v1.jsonl` — all 183 examples (each `expected_intent` is a JSON string).
+- `data/core.jsonl` — 143 core examples.
+- `data/stress.jsonl` — 40 held-out stress examples.
+
+## Links
+
+- **FinIR-Intent (model/baseline):** https://huggingface.co/Olyxee/FinIR-Intent
+- **FinIR source (GitHub):** https://github.com/Olyxee/finir
+- **Intent Contract spec:** https://github.com/Olyxee/finir/blob/main/docs/intent-contract.md
