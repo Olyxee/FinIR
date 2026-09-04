@@ -8,7 +8,7 @@ finir==0.1.0
 #
 # Once `finir-intent` is published to PyPI, replace this line with
 # `finir-intent==0.1.0`.
-git+https://github.com/Olyxee/finir.git@f9ec68e6b9077075edd3c53c96560cbb73bcedfb#subdirectory=finir_intent
+git+https://github.com/Olyxee/finir.git@64f251a1c0860d3413dc5616d9acc036978eb0e9#subdirectory=finir_intent
 
 gradio>=4.0
 jsonschema>=4.21
