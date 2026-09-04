@@ -96,6 +96,15 @@ include = [
 line-length = 100
 target-version = "py311"
 src = ["src", "tests"]
+# release/huggingface/ is a generated Hugging Face publish-staging export (see
+# finir_intent/scripts/build_release.py) -- a plain copy of finir_intent/ with no
+# pyproject.toml of its own, so `ruff check .` from the repo root would otherwise
+# lint it under *this* config instead of finir_intent/pyproject.toml's (which
+# correctly treats `finir` as a third-party dependency rather than this repo's own
+# first-party package). That mismatch produced false-positive import-sort errors
+# on files that are already lint-clean under their real config. Exclude the export
+# entirely; it is never a source of truth and is regenerated from finir_intent/.
+extend-exclude = ["release"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "C4", "SIM", "PL", "RUF"]
