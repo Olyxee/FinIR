@@ -2,13 +2,13 @@
 
 **A financial intermediate representation and incremental execution runtime for AI systems.**
 
-In one sentence: FinIR is a small, typed "compiler" for financial calculations —
-instead of an AI regenerating and re-running an entire spreadsheet-like model every
+In one sentence: FinIR is a small, typed "compiler" for financial calculations.
+Instead of an AI regenerating and re-running an entire spreadsheet-like model every
 time one number changes, it describes the model to FinIR once, and FinIR recomputes
 only what actually depends on the thing that changed.
 
 AI systems increasingly reason about finance, but their numerical execution still
-falls back to generated Python, spreadsheets, SQL, or generic tensor frameworks —
+falls back to generated Python, spreadsheets, SQL, or generic tensor frameworks:
 slow to re-run, hard to audit, and with no shared notion of what "revenue" or "days"
 even mean as types. FinIR gives financial reasoning a dedicated compiler target
 instead.
@@ -69,8 +69,8 @@ scenario = model.what_if(cogs="+4%")
 print(scenario["ebitda"])
 ```
 
-Change one assumption and FinIR recomputes **only the affected part of the graph** —
-it never starts over:
+Change one assumption and FinIR recomputes **only the affected part of the graph**.
+It never starts over:
 
 ```
 Input changed:
@@ -86,7 +86,7 @@ Reused (from cache):
 ## Why FinIR
 
 When an AI needs to compute *"increase supplier costs 7% and extend payment terms
-30→60 days,"* it usually translates that into arbitrary generated code — inefficient,
+30→60 days,"* it usually translates that into arbitrary generated code: inefficient,
 non-deterministic, unaudited, and recomputed from scratch every turn. FinIR replaces
 that with a standard boundary:
 
@@ -96,15 +96,16 @@ financial intent  →  FinIR  →  deterministic, incremental financial executio
 
 It understands financial semantics (revenue, COGS, gross margin, EBITDA, working
 capital, receivables/payables, free cash flow, NPV, unit economics, payment terms,
-…) and their computational dependencies — so it can recompute only what changed and
+…) and their computational dependencies, so it can recompute only what changed and
 reuse the rest.
 
 ## What is a Financial IR?
 
 An **intermediate representation (IR)** is just a structured, typed description of a
-computation that a compiler can analyze before running it — the same idea C compilers
-and TensorFlow graphs use, applied here to financial models instead of general code
-or tensors. FinIR's IR is a typed computation graph with a finance-native type system:
+computation that a compiler can analyze before running it. It's the same idea C
+compilers and TensorFlow graphs use, applied here to financial models instead of
+general code or tensors. FinIR's IR is a typed computation graph with a
+finance-native type system:
 
 ```
 revenue      = input money[ZAR]
@@ -121,7 +122,7 @@ mistakes at compile time: `money - money → money` (same currency, else an erro
 
 ## Architecture
 
-Each stage below is a clean, separately-testable layer — an agent or developer never
+Each stage below is a clean, separately-testable layer. An agent or developer never
 has to touch anything past the first arrow:
 
 ```
@@ -135,7 +136,7 @@ See [docs/architecture.md](https://github.com/Olyxee/finir/blob/main/docs/archit
 
 This is FinIR's core reason to exist. Changing one input invalidates only its
 downstream cone in the dependency graph; the next evaluation recomputes exactly
-those nodes and reuses everything else in O(1) — a dict lookup, not a re-derived
+those nodes and reuses everything else in O(1): a dict lookup, not a re-derived
 cache key. See [docs/runtime.md](https://github.com/Olyxee/finir/blob/main/docs/runtime.md) and
 [docs/caching.md](https://github.com/Olyxee/finir/blob/main/docs/caching.md).
 
@@ -147,13 +148,13 @@ batches. See [docs/scenarios.md](https://github.com/Olyxee/finir/blob/main/docs/
 ## Financial types
 
 `money[CCY]`, `percentage`, `ratio`, `days`, `quantity`, `rate`, `series`,
-`scenario`, `scalar`, `bool` — enforced at compile time. See
+`scenario`, `scalar`, `bool`, enforced at compile time. See
 [docs/type-system.md](https://github.com/Olyxee/finir/blob/main/docs/type-system.md).
 
 ## Kernels
 
-Arithmetic, corporate finance, working capital, time-value-of-money, and basic risk
-— plus a `@finir.kernel` extension point. Deliberately small (not a quant library).
+Arithmetic, corporate finance, working capital, time-value-of-money, and basic risk,
+plus a `@finir.kernel` extension point. Deliberately small (not a quant library).
 See [docs/kernels.md](https://github.com/Olyxee/finir/blob/main/docs/kernels.md).
 
 ## Compiler passes
@@ -166,7 +167,7 @@ pruning, scenario vectorization, fusion analysis, cache planning. Inspect with
 
 Core FinIR consumes **structured** intent (`apply_intent`); natural-language
 interpretation is an optional `IntentCompiler` layer (a dependency-free
-`MockIntentCompiler` ships for offline use) — the model *interprets*, the runtime
+`MockIntentCompiler` ships for offline use): the model *interprets*, the runtime
 *computes*, and that boundary is never blurred. See
 [docs/agent-integration.md](https://github.com/Olyxee/finir/blob/main/docs/agent-integration.md)
 and, for the canonical NL → FinIR contract, [docs/intent-contract.md](https://github.com/Olyxee/finir/blob/main/docs/intent-contract.md).
@@ -189,7 +190,7 @@ On the reference machine, the iterative-reasoning benchmark shows **1.7×–2.2�
 turn-by-turn agent reasoning vs. full recompute (up to 99.6% cache hits), and
 ~1,000,000 scenarios in ~46 ms on CPU. A separate, independently-reproducible
 benchmark (`benchmarks/public_benchmark.py`, run against the published `finir==0.1.0`
-package) measures a different question — how the advantage scales with graph size —
+package) measures a different question (how the advantage scales with graph size)
 and finds **15×–24× speedup** holding across graphs from ~100 to ~100,000 nodes for a
 single changed input, with cache reuse up to ~86%. All numbers are measured, never
 hard-coded; see [docs/performance.md](https://github.com/Olyxee/finir/blob/main/docs/performance.md)
@@ -197,13 +198,13 @@ and `benchmarks/results/` for full methodology and raw data.
 
 ## Research
 
-- [research/experiment_001_incremental_financial_reasoning.md](https://github.com/Olyxee/finir/blob/main/research/experiment_001_incremental_financial_reasoning.md) — incremental vs. full recompute
-- [research/experiment_002_backend_dispatch.md](https://github.com/Olyxee/finir/blob/main/research/experiment_002_backend_dispatch.md) — CPU/GPU crossover (GPU unverified locally)
-- [research/prior_art.md](https://github.com/Olyxee/finir/blob/main/research/prior_art.md) — critical positioning vs. spreadsheets, incremental-computation systems, JAX/XLA/MLIR, QuantLib, planning engines, and more
+- [research/experiment_001_incremental_financial_reasoning.md](https://github.com/Olyxee/finir/blob/main/research/experiment_001_incremental_financial_reasoning.md): incremental vs. full recompute
+- [research/experiment_002_backend_dispatch.md](https://github.com/Olyxee/finir/blob/main/research/experiment_002_backend_dispatch.md): CPU/GPU crossover (GPU unverified locally)
+- [research/prior_art.md](https://github.com/Olyxee/finir/blob/main/research/prior_art.md): critical positioning vs. spreadsheets, incremental-computation systems, JAX/XLA/MLIR, QuantLib, planning engines, and more
 
-We do **not** claim FinIR is a first or a breakthrough. The working hypothesis —
-that there is no widely-adopted open finance-specific IR designed as the execution
-boundary between AI financial intent and incremental computation — remains a
+We do **not** claim FinIR is a first or a breakthrough. The working hypothesis, that
+there is no widely-adopted open finance-specific IR designed as the execution
+boundary between AI financial intent and incremental computation, remains a
 hypothesis pending a formal prior-art review.
 
 ## Extending FinIR
@@ -236,4 +237,4 @@ code and no runtime dependency on it.
 
 ## License
 
-Apache-2.0 — see [LICENSE](https://github.com/Olyxee/finir/blob/main/LICENSE).
+Apache-2.0. See [LICENSE](https://github.com/Olyxee/finir/blob/main/LICENSE).
