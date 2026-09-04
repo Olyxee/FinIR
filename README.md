@@ -2,12 +2,18 @@
 
 **A financial intermediate representation and incremental execution runtime for AI systems.**
 
+In one sentence: FinIR is a small, typed "compiler" for financial calculations —
+instead of an AI regenerating and re-running an entire spreadsheet-like model every
+time one number changes, it describes the model to FinIR once, and FinIR recomputes
+only what actually depends on the thing that changed.
+
 AI systems increasingly reason about finance, but their numerical execution still
-falls back to generated Python, spreadsheets, SQL, or generic tensor frameworks.
-FinIR gives financial reasoning a dedicated compiler target.
+falls back to generated Python, spreadsheets, SQL, or generic tensor frameworks —
+slow to re-run, hard to audit, and with no shared notion of what "revenue" or "days"
+even mean as types. FinIR gives financial reasoning a dedicated compiler target
+instead.
 
-<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/20298bac-2d01-4b65-8b83-01643e500851" />
-
+![FinIR: financial intent flowing through dependency analysis and incremental execution to CPU/SIMD/GPU](https://github.com/user-attachments/assets/20298bac-2d01-4b65-8b83-01643e500851)
 
 [![CI](https://github.com/Olyxee/finir/actions/workflows/ci.yml/badge.svg)](https://github.com/Olyxee/finir/actions/workflows/ci.yml)
 &nbsp;License: Apache-2.0 &nbsp;·&nbsp; Python 3.11+ &nbsp;·&nbsp; CPU-first, optional GPU
@@ -63,7 +69,8 @@ scenario = model.what_if(cogs="+4%")
 print(scenario["ebitda"])
 ```
 
-Change one assumption and FinIR recomputes **only the affected part of the graph**:
+Change one assumption and FinIR recomputes **only the affected part of the graph** —
+it never starts over:
 
 ```
 Input changed:
@@ -94,7 +101,10 @@ reuse the rest.
 
 ## What is a Financial IR?
 
-A typed computation graph with a finance-native type system:
+An **intermediate representation (IR)** is just a structured, typed description of a
+computation that a compiler can analyze before running it — the same idea C compilers
+and TensorFlow graphs use, applied here to financial models instead of general code
+or tensors. FinIR's IR is a typed computation graph with a finance-native type system:
 
 ```
 revenue      = input money[ZAR]
@@ -103,24 +113,30 @@ gross_profit = revenue - cogs        : money[ZAR]
 gross_margin = gross_profit / revenue : ratio
 ```
 
-`money - money → money` (same currency, else an error); `money / money → ratio`;
-`money + days` is a type error. See [docs/ir.md](https://github.com/Olyxee/finir/blob/main/docs/ir.md) and
+Because the types carry financial meaning, not just numeric shape, FinIR can catch
+mistakes at compile time: `money - money → money` (same currency, else an error);
+`money / money → ratio`; `money + days` is a type error. See
+[docs/ir.md](https://github.com/Olyxee/finir/blob/main/docs/ir.md) and
 [docs/type-system.md](https://github.com/Olyxee/finir/blob/main/docs/type-system.md).
 
 ## Architecture
+
+Each stage below is a clean, separately-testable layer — an agent or developer never
+has to touch anything past the first arrow:
 
 ```
 Agent / Developer API → FinIR Builder → Financial IR → Compiler Passes
   → Execution Plan → Incremental Runtime → Kernel Backend → CPU / SIMD / GPU
 ```
 
-Each layer is cleanly separated. See [docs/architecture.md](https://github.com/Olyxee/finir/blob/main/docs/architecture.md).
+See [docs/architecture.md](https://github.com/Olyxee/finir/blob/main/docs/architecture.md).
 
 ## Incremental execution
 
-Changing one input invalidates only its downstream cone; the next evaluation
-recomputes exactly those nodes and reuses everything else in O(1). This is FinIR's
-reason to exist — see [docs/runtime.md](https://github.com/Olyxee/finir/blob/main/docs/runtime.md) and
+This is FinIR's core reason to exist. Changing one input invalidates only its
+downstream cone in the dependency graph; the next evaluation recomputes exactly
+those nodes and reuses everything else in O(1) — a dict lookup, not a re-derived
+cache key. See [docs/runtime.md](https://github.com/Olyxee/finir/blob/main/docs/runtime.md) and
 [docs/caching.md](https://github.com/Olyxee/finir/blob/main/docs/caching.md).
 
 ## Scenario engine
@@ -150,8 +166,10 @@ pruning, scenario vectorization, fusion analysis, cache planning. Inspect with
 
 Core FinIR consumes **structured** intent (`apply_intent`); natural-language
 interpretation is an optional `IntentCompiler` layer (a dependency-free
-`MockIntentCompiler` ships for offline use). The model interprets; the runtime
-computes. See [docs/agent-integration.md](https://github.com/Olyxee/finir/blob/main/docs/agent-integration.md).
+`MockIntentCompiler` ships for offline use) — the model *interprets*, the runtime
+*computes*, and that boundary is never blurred. See
+[docs/agent-integration.md](https://github.com/Olyxee/finir/blob/main/docs/agent-integration.md)
+and, for the canonical NL → FinIR contract, [docs/intent-contract.md](https://github.com/Olyxee/finir/blob/main/docs/intent-contract.md).
 
 ## CPU / GPU dispatch
 
@@ -163,12 +181,19 @@ sends very large scenario batches to an optional CuPy GPU backend when present. 
 
 ```bash
 finir benchmark --full
-python benchmarks/run_benchmarks.py     # writes benchmarks/results/
+python benchmarks/run_benchmarks.py         # iterative-reasoning workload -> benchmarks/results/
+python benchmarks/public_benchmark.py       # incremental vs. full recompute across graph sizes
 ```
 
-On the reference machine: **1.7×–2.2× faster** iterative reasoning vs. full
-recompute (up to 99.6% cache hits), and ~1,000,000 scenarios in ~46 ms on CPU. All
-numbers are measured, never hard-coded. See [docs/performance.md](https://github.com/Olyxee/finir/blob/main/docs/performance.md).
+On the reference machine, the iterative-reasoning benchmark shows **1.7×–2.2× faster**
+turn-by-turn agent reasoning vs. full recompute (up to 99.6% cache hits), and
+~1,000,000 scenarios in ~46 ms on CPU. A separate, independently-reproducible
+benchmark (`benchmarks/public_benchmark.py`, run against the published `finir==0.1.0`
+package) measures a different question — how the advantage scales with graph size —
+and finds **15×–24× speedup** holding across graphs from ~100 to ~100,000 nodes for a
+single changed input, with cache reuse up to ~86%. All numbers are measured, never
+hard-coded; see [docs/performance.md](https://github.com/Olyxee/finir/blob/main/docs/performance.md)
+and `benchmarks/results/` for full methodology and raw data.
 
 ## Research
 
