@@ -4,6 +4,30 @@ All notable changes to FinIR are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows
 [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-09-05
+
+Documentation-only patch release. **No changes to `finir`'s code, public API, or
+runtime behavior** — every file under `src/finir/` is byte-identical to `0.1.0`.
+Released solely to refresh the README that PyPI displays (PyPI renders the README
+bundled with a given version at upload time; it does not update when the GitHub
+repository changes, so the 0.1.0 page was showing a stale README).
+
+### Changed
+
+- README: replaced the hero image's raw `<img width height>` HTML tag with plain
+  Markdown image syntax, so it scales to fit PyPI's narrower content column instead
+  of rendering oversized.
+- README: added a plain-language explanation of what FinIR does up front, a lead-in
+  to the "What is a Financial IR?" section, a link to `docs/intent-contract.md`, a
+  reference to `benchmarks/public_benchmark.py`, and removed em dashes throughout.
+- CI/dev tooling: excluded the generated `release/huggingface/` Hugging Face
+  publish-staging export from the root `ruff` lint scope (it was being linted under
+  the wrong config and failing CI on a false positive; not shipped in the package).
+- Added `benchmarks/public_benchmark.py`: an independently-reproducible benchmark of
+  incremental execution vs. full recomputation across graph sizes, run against the
+  published `finir==0.1.0` package. Not part of the installed package; see
+  `benchmarks/results/` for methodology and raw data.
+
 ## [0.1.0] - 2026-08-31
 
 First release of **FinIR** — a financial intermediate representation and incremental
